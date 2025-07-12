@@ -3,11 +3,12 @@
 # Depending on their choice, this will be the interface to that engine.
 
 import string
-from Messaging import Messaging as Msg
+from Framework import GlobalRegistry as gbl
+from FrameworkInitialiser import FrameworkInitialiser
 
 class EngineBaseTemplate:
     def __init__(self):
-        self.msg = Msg()
+        self.msg = gbl.Msg
         self.m_active_network = None
         self.m_strTypeOfEngine = "NoEngine"
         self.m_strVersion = "0.0.0"
@@ -194,3 +195,9 @@ class EngineBaseTemplate:
             self.msg.AddError("Fault analysis results not available")
             return bOK
         
+if __name__ == "__main__":
+    fw = FrameworkInitialiser()
+    fw.initialize()
+    enginebasetemplateinstance = EngineBaseTemplate()
+    enginebasetemplateinstance.msg.OutputSplash()
+    
