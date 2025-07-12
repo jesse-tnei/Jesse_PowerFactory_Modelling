@@ -29,6 +29,10 @@ class FrameworkInitialiser:
 
         try:
             # Priority order: provided params > engine info > defaults
+            
+            # Create messaging instance first so it can be used globally
+            gbl.Msg = Msg.Messaging()
+            
             if engine:
                 # Future: Get info from Engine instance
                 self.app_name = app_name or getattr(engine, 'app_name', "PowerFactory Modelling Framework")
@@ -49,8 +53,7 @@ class FrameworkInitialiser:
             self.engine = engine
             gbl.Engine = engine  # Future: Engine will be available globally
 
-            # Create messaging instance
-            gbl.Msg = Msg.Messaging()
+
 
             # Show splash screen
             gbl.Msg.OutputSplash()
