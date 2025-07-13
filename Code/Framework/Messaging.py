@@ -179,7 +179,7 @@ class Messaging:
 
         # Add formatted lines
         strSplash += f"""
-        # Engine:      {strEngineType:<44}  #
+        # Engine:     {strEngineType:<44}   #
         # Framework:   {strFrameworkVer:<44}  #
         # Designer:    {strAuthor:<44}  #
         ##############################################################"""
