@@ -1,7 +1,7 @@
 # Messaging.py
 # This file contains the Messaging class, which is used to handle messaging within the application.
 
-import GlobalRegistry as gbl
+from Framework import GlobalRegistry as gbl
 import datetime
 
 
@@ -165,7 +165,7 @@ class Messaging:
         strEngineType = ""
         bEngineError = False
         try:
-            strEngineType = gbl.Engine.get_version()
+            strEngineType = gbl.Engine.m_strVersion
         except:
             strEngineType = "Engine not available"
             bEngineError = False

@@ -9,19 +9,19 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 from Framework import GlobalRegistry as gbl
 from Framework import Messaging as Msg
-
+from Framework.EnginePowerFactory import EnginePowerFactory
 
 class FrameworkInitialiser:
     """Framework initialization and management class"""
 
     def __init__(self):
         self.is_initialized = False
+        self.engine = EnginePowerFactory()  # Future: Will hold Engine instance
         self.app_name = None
         self.app_version = None
         self.app_author = None
-        self.engine = None  # Future: Will hold Engine instance
 
-    def initialize(self, app_name=None, app_version=None, app_author=None, engine=None):
+    def initialize(self, engine=None):
         """Initialize all framework components"""
         if self.is_initialized:
             print("Framework already initialized!")
@@ -33,16 +33,12 @@ class FrameworkInitialiser:
             # Create messaging instance first so it can be used globally
             gbl.Msg = Msg.Messaging()
             
-            if engine:
+            if engine is None:
                 # Future: Get info from Engine instance
-                self.app_name = app_name or getattr(engine, 'app_name', "PowerFactory Modelling Framework")
-                self.app_version = app_version or getattr(engine, 'version', "1.0.0") 
-                self.app_author = app_author or getattr(engine, 'author', "PowerFactory")
-            else:
-                # Current fallback defaults
-                self.app_name = app_name or "PowerFactory Modelling Framework"
-                self.app_version = app_version or "1.0.0"
-                self.app_author = app_author or "PowerFactory"
+                engine = self.engine
+                self.app_name = getattr(engine, 'm_strTypeOfEngine', "PowerFactory Modelling Framework")
+                self.app_version = getattr(engine, 'm_strVersion', "1.0.0") 
+                self.app_author = getattr(engine, 'm_strAuthor', "PowerFactory")
             
             # Set global registry values
             gbl.gbl_sAppName = self.app_name
@@ -56,7 +52,7 @@ class FrameworkInitialiser:
 
 
             # Show splash screen
-            gbl.Msg.OutputSplash()
+            #gbl.Msg.OutputSplash()
 
             self.is_initialized = True
 
@@ -94,7 +90,7 @@ class FrameworkInitialiser:
         }
 
 
-# For backwards compatibility - if run directly
-if __name__ == "__main__":
-    fw = FrameworkInitialiser()
-    fw.initialize()
+# # For backwards compatibility - if run directly
+# if __name__ == "__main__":
+#     fw = FrameworkInitialiser()
+#     fw.initialize()

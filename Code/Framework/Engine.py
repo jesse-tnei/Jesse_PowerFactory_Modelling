@@ -4,14 +4,14 @@
 
 import string
 from Framework import GlobalRegistry as gbl
-from FrameworkInitialiser import FrameworkInitialiser
+#from FrameworkInitialiser import FrameworkInitialiser
 
-class EngineBaseTemplate:
+class EngineContainer:
     def __init__(self):
         self.msg = gbl.Msg
         self.m_active_network = None
         self.m_strTypeOfEngine = "NoEngine"
-        self.m_strVersion = "0.0.0"
+        self.m_strVersion = "1.0.0"
         self.m_strAuthor = "Unknown"
         
         self.m_NetworkToDataModelInterface = None
@@ -195,9 +195,9 @@ class EngineBaseTemplate:
             self.msg.AddError("Fault analysis results not available")
             return bOK
         
-if __name__ == "__main__":
-    fw = FrameworkInitialiser()
-    fw.initialize()
-    enginebasetemplateinstance = EngineBaseTemplate()
-    enginebasetemplateinstance.msg.OutputSplash()
+# if __name__ == "__main__":
+#     fw = FrameworkInitialiser()
+#     fw.initialize()
+#     enginebasetemplateinstance = EngineContainer()
+#     enginebasetemplateinstance.msg.OutputSplash()
     
