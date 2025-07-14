@@ -12,33 +12,39 @@ from Framework.Engine import EngineContainer as EngineContainer
 class EnginePowerFactory(EngineContainer):
     """Engine class for PowerFactory"""
     
-    def __init__(self, preferred_version = 0):
+    def __init__(self, preferred_version = 2023):
         EngineContainer.__init__(self)
+        
+        #Dependency injection
         self.m_oMsg = gbl.Msg
-        self.m_pFApp = None  # PowerFactory application instance
+        
+        # PowerFactory network objects
+        self.m_pFApp = None 
         self.m_active_network = None
         
+        # PowerFactory study types - initialised to None
         self.m_NetworkToDataModelInterface = None
         self.m_oNetworkStudySettings = None
-        self.m_oNetworkLoadFlowRunInstanceInstance = None
-        self.m_oNetworkHarmonicsRunInstanceInstance = None
+        self.m_oNetworkLoadFlowRunInstance = None
+        self.m_oNetworkHarmonicsRunInstance = None
         self.m_oNetworkShortCircuitRunInstance = None
         self.m_oNetworkFaultAnalysisRunInstance = None
         
-        self.m_strTypeOfEngine = ""
-        self.m_strVersion = "1.0.0"
-        self.m_strAuthor = "Kamau Ngugi"
+        # PowerFactory version and type of engine - for display purposes
+        self.m_strTypeOfEngine = "Not Specified"
+        self.m_strVersion = "Not Specified"
+        self.m_strAuthor = "Not Specified"
         
         self.m_ChosenVersion = preferred_version
         
+        #allowed PowerFactory versions
         self.m_AllowableVersions = {
-            0: "PowerFactory Not Loaded",  # Default version
             2023: " PowerFactory 2023 V0.0.1",
             2024: "PowerFactory 2024 V0.0.1",
             2025: "PowerFactory 2025 V0.0.1"
         }
         
-        # installation paths
+        # PowerFactory installation paths
         self.m_PowerFactoryInstallPath2023 = "C:\\Program Files\\DIgSILENT\\PowerFactory 2023 SP5\\Python\\3.11"
         self.m_PowerFactoryInstallPath2024 = "C:\\Program Files\\DIgSILENT\\PowerFactory 2024"
         self.m_PowerFactoryInstallPath2025 = "C:\\Program Files\\DIgSILENT\\PowerFactory 2025"
@@ -141,6 +147,101 @@ class EnginePowerFactory(EngineContainer):
             self.m_oMsg.AddInfo(f"PowerFactory {version} environment loaded successfully")
         except ImportError as e:
             self.m_oMsg.AddError(f"Failed to load PowerFactory environment: {e}")
+            
+    def activatePfNetwork(self, network_name: str):
+        """Activate a PowerFactory network by name"""
+        if not self.m_pFApp:
+            self.m_oMsg.AddError("PowerFactory application is not initialized")
+            return False
+        
+        try:
+            network = self.m_pFApp.ActivateProject(network_name) # returns 0
+            if network:
+                self.m_oMsg.AddError(f"Network '{network_name}' not found")
+                return False
+            
+            self.m_active_network = self.m_pFApp.GetActiveProject()
+            self.m_oMsg.AddInfo(f"Activated PowerFactory network: {self.m_active_network.loc_name}")
+            return True
+        except Exception as e:
+            self.m_oMsg.AddError(f"Failed to activate network '{network_name}': {e}")
+            return False
+    
+    def activateStudyCase(self, study_case_name: str):
+        bOK = False
+        bOK = self.activatePfItem("StudyCase", study_case_name, ".IntCase")
+        return bOK
+    
+    
+    def activatePfItem(self, itemType:str, itemName:str, itemSuffix:str):
+        """Activate a PowerFactory item by name"""
+        if not self.m_active_network:
+            self.m_oMsg.AddError("No active PowerFactory network")
+            return False
+        
+        try:
+            pfFolder = self._getPfFolderByType(itemType)
+            if not pfFolder:
+                self.m_oMsg.AddError(f"Failed to get PowerFactory folder for type '{itemType}'")
+                return False
+            
+            pfItems = pfFolder.GetContents(f"{itemName}{itemSuffix}")
+            if not pfItems:
+                self.m_oMsg.AddError(f"Item '{itemName}{itemSuffix}' not found in folder '{pfFolder.loc_name}'")
+                return False
+            
+            for item in pfItems:
+                if item.loc_name == itemName:
+                    pfItem = item
+                    break
+            pfItemActivationFailFlag = pfItem.Activate() #return 0 if successful
+            
+            if pfItemActivationFailFlag:
+                self.m_oMsg.AddError(f"Failed to activate item '{itemName}{itemSuffix}'")
+                return False
+            
+            self.m_oMsg.AddInfo(f"Activated PowerFactory item: {pfItem.loc_name}")
+            return True
+        except Exception as e:
+            self.m_oMsg.AddError(f"Failed to activate item '{itemName}{itemSuffix}': {e}")
+            return False
+            
+            
+    
+    def _getPfFolderByType(self, itemType:str) -> object:
+        folder_map = {
+            'EquipmentType': 'equip',
+            'NetworkModel': 'netmod',
+            'OperationalLibrary': 'oplib',
+            'OperationalScenario': 'scen',
+            'ScriptLibrary': 'script',
+            'StudyCase': 'study',
+            'Template': 'templ',
+            'NetworkData': 'netdat',
+            'Diagram': 'dia',
+            'Variation': 'scheme',
+            'CBRating': 'cbrat',
+            'ThermalRating': 'therm',
+            'RunningArrangement': 'ra',
+            'MVArLimitCurve': 'mvar',
+            'Outage': 'outage',
+            'Fault': 'fault',
+            'Characteristics': 'chars'
+        }
+        if not self.m_active_network:
+            self.m_oMsg.AddError("No active PowerFactory network")
+            return None
+        try:
+            pfFolderName = folder_map.get(itemType, None)
+            if pfFolderName:
+                return self.m_pFApp.GetProjectFolder(pfFolderName)
+            self.m_oMsg.AddError(f"Invalid item type: {itemType}")
+            return None     
+        except Exception as e:
+            self.m_oMsg.AddError(f"Failed to get PowerFactory folder for type '{itemType}': {e}")
+            return None
+    
+        
     
     
         
