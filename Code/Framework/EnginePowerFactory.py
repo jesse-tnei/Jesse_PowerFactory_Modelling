@@ -168,7 +168,14 @@ class EnginePowerFactory(EngineContainer):
             return False
     
     def activateStudyCase(self, study_case_name: str):
+        """Activate a PowerFactory study case by name"""
         bOK = False
+        activeStudyCase = self.checkActiveStudyCase()
+        if activeStudyCase and activeStudyCase.loc_name == study_case_name:
+            self.m_oMsg.AddInfo(f"Study case '{study_case_name}' is already active")
+            bOK = True
+            return bOK
+        
         bOK = self.activatePfItem("StudyCase", study_case_name, ".IntCase")
         return bOK
     
@@ -194,11 +201,13 @@ class EnginePowerFactory(EngineContainer):
                 if item.loc_name == itemName:
                     pfItem = item
                     break
+            pfItemActivationFailFlag = -1
             pfItemActivationFailFlag = pfItem.Activate() #return 0 if successful
             
             if pfItemActivationFailFlag:
                 self.m_oMsg.AddError(f"Failed to activate item '{itemName}{itemSuffix}'")
                 return False
+            
             
             self.m_oMsg.AddInfo(f"Activated PowerFactory item: {pfItem.loc_name}")
             return True
@@ -240,7 +249,16 @@ class EnginePowerFactory(EngineContainer):
         except Exception as e:
             self.m_oMsg.AddError(f"Failed to get PowerFactory folder for type '{itemType}': {e}")
             return None
-    
+        
+    def checkActiveStudyCase(self) -> object:
+        """Check if an active study case is available"""
+        if not self.m_active_network:
+            self.m_oMsg.AddError("No active PowerFactory network")
+            return False
+        
+        return self.m_pFApp.GetActiveStudyCase()
+        
+
         
     
     
