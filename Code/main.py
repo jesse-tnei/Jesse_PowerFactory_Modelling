@@ -5,7 +5,7 @@ from Framework import GlobalRegistry as gbl
 if __name__ == "__main__":
     fw = FrameworkInitialiser()
     fw.initialize()
-    gbl.Msg.OutputSplash()
+    gbl.Msg.DisplayWelcomeMessage()
     gbl.Engine.activatePfNetwork(r"Personal_Learning\Load Flow")
     gbl.Engine.activateStudyCase("Study Case")
     print("Framework initialized and ready to use!")

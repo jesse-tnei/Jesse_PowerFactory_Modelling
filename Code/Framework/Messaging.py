@@ -137,7 +137,7 @@ class Messaging:
 
     #_________________________SPLASH SCREEN MESSAGE________________________
 
-    def OutputSplash(self):
+    def DisplayWelcomeMessage(self):
         import textwrap
 
         strFrameworkVer = gbl.gbl_sFrameworkVersion
