@@ -148,7 +148,7 @@ class EnginePowerFactory(EngineContainer):
         except ImportError as e:
             self.m_oMsg.AddError(f"Failed to load PowerFactory environment: {e}")
             
-    def activatePfNetwork(self, network_name: str):
+    def activatePowerFactoryNetwork(self, network_name: str):
         """Activate a PowerFactory network by name"""
         if not self.m_pFApp:
             self.m_oMsg.AddError("PowerFactory application is not initialized")
@@ -166,8 +166,13 @@ class EnginePowerFactory(EngineContainer):
         except Exception as e:
             self.m_oMsg.AddError(f"Failed to activate network '{network_name}': {e}")
             return False
+        
+    def GetAuthor(self):
+        """Returns the author of the engine"""
+        if self.m_active_network:
+            pass
     
-    def activateStudyCase(self, study_case_name: str):
+    def activatePowerFactoryStudyCase(self, study_case_name: str):
         """Activate a PowerFactory study case by name"""
         bOK = False
         activeStudyCase = self.checkActiveStudyCase()
