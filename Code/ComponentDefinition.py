@@ -11,7 +11,7 @@ class ComponentBaseTemplate:
     def SetDataModelComponentStatus(self, status, bUpdateEngine=True):
         self.ON = bool(status)
         if bUpdateEngine:
-            return self.StatusToEngine()
+            return self.SetDataModelComponentStatusToEngine()
         
     def SwitchDataModelComponentOff(self):
         self.ON = False
@@ -32,7 +32,7 @@ class ComponentBaseTemplate:
         lAttributes = self.__dict__
         return lAttributes
     
-    def PassDataModelComponentStatusToEngine(self):
+    def SetDataModelComponentStatusToEngine(self):
         # This method should be overridden in subclasses to update the engine status
         raise NotImplementedError("This method should be implemented in subclasses.")
     
