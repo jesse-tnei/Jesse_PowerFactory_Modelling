@@ -8,45 +8,48 @@ class ComponentBaseTemplate:
         self.Results = True
         
         
-    def SetStatus(self, status, bUpdateEngine=True):
+    def SetDataModelComponentStatus(self, status, bUpdateEngine=True):
         self.ON = bool(status)
         if bUpdateEngine:
             return self.StatusToEngine()
         
-    def SwitchOff(self):
+    def SwitchDataModelComponentOff(self):
         self.ON = False
         
-    def SwitchOn(self):
+    def SwitchDataModelComponentOn(self):
         self.ON = True
         
-    def SwitchStatus(self):
+    def SwitchDataModelComponentStatus(self):
         self.ON = not self.ON
         
-    def GetReadableName(self):
+    def GetDataModelComponentReadableName(self):
         return ""
     
-    def GetClassName(self):
+    def GetDataModelComponentType(self):
         return self.__class__.__name__
     
-    def ListComponentAttributes(self):
+    def ListDataModelComponentProperties(self):
         lAttributes = self.__dict__
         return lAttributes
     
-    def StatusToEngine(self):
+    def PassDataModelComponentStatusToEngine(self):
         # This method should be overridden in subclasses to update the engine status
         raise NotImplementedError("This method should be implemented in subclasses.")
     
-    def StatusFromEngine(self):
+    def GetDataModelComponentStatusFromEngine(self):
         # This method should be overridden in subclasses to retrieve the status from the engine
         raise NotImplementedError("This method should be implemented in subclasses.")
     
-    def ExtractFromEngine(self):
+    def ExtractDataModelComponentFromEngine(self):
         # This method should be overridden in subclasses to extract data from the engine
         raise NotImplementedError("This method should be implemented in subclasses.")
     
-    def LoadToEngine(self):
+    def LoadDataModelComponentToEngine(self):
         # This method should be overridden in subclasses to load data to the engine
         raise NotImplementedError("This method should be implemented in subclasses.")
+    
+    
+    
     
     
     
