@@ -14,14 +14,11 @@
 # It is also in here that such generators can be retrieved, turned off and loaded back onto the engine
 
 #The class also outlines the paths for different input files ranging from network files to actual input data files in excel format.
-
-import Framework.GlobalRegistry as gbl
-import Framework.Messaging as Msg
 import os
 import sys
 
 
-class BaseDataModelManager:
+class DataModelManager:
 
     def __init__(self):
         self.Busbar_TAB = []

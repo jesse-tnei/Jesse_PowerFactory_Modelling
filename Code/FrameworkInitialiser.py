@@ -9,19 +9,16 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 from Framework import GlobalRegistry as gbl
 from Framework import Messaging as Msg
-
+from DataModelManager import DataModelManager
 
 class FrameworkInitialiser:
     """Framework initialization and management class"""
 
     def __init__(self):
         self.is_initialized = False
-        self.app_name = None
-        self.app_version = None
-        self.app_author = None
         self.engine = None  # Future: Will hold Engine instance
 
-    def initialize(self, app_name=None, app_version=None, app_author=None, engine=None):
+    def initialize(self, engine=None):
         """Initialize all framework components"""
         if self.is_initialized:
             print("Framework already initialized!")
@@ -29,31 +26,22 @@ class FrameworkInitialiser:
 
         try:
             # Priority order: provided params > engine info > defaults
-            if engine:
-                # Future: Get info from Engine instance
-                self.app_name = app_name or getattr(engine, 'app_name', "PowerFactory Modelling Framework")
-                self.app_version = app_version or getattr(engine, 'version', "1.0.0") 
-                self.app_author = app_author or getattr(engine, 'author', "PowerFactory")
-            else:
-                # Current fallback defaults
-                self.app_name = app_name or "PowerFactory Modelling Framework"
-                self.app_version = app_version or "1.0.0"
-                self.app_author = app_author or "PowerFactory"
+            
+            # Create messaging instance first so it can be used globally
+            gbl.Msg = Msg.Messaging()
+            
+            # Import here to avoid circular dependency since killing PowerFactory processes requires Messaging
+            from Framework.EnginePowerFactory import EnginePowerFactory  
+            
+            # Initialize engine
+            self.engine = EnginePowerFactory(preferred_version=2023) if engine is None else engine
             
             # Set global registry values
-            gbl.gbl_sAppName = self.app_name
-            gbl.gbl_sVersion = self.app_version
-            gbl.gbl_sAuthor = self.app_author
-            
-            # Store engine reference
-            self.engine = engine
-            gbl.Engine = engine  # Future: Engine will be available globally
-
-            # Create messaging instance
-            gbl.Msg = Msg.Messaging()
-
-            # Show splash screen
-            gbl.Msg.OutputSplash()
+            gbl.gbl_sAppName = getattr(self.engine, 'm_strTypeOfEngine', "PowerFactory Modelling Framework")
+            gbl.gbl_sVersion = getattr(self.engine, 'm_strVersion', "Not Specified")
+            gbl.gbl_sAuthor = getattr(self.engine, 'm_strAuthor', "Not Specified")
+            gbl.Engine = self.engine
+            gbl.DataModel = DataModelManager()  
 
             self.is_initialized = True
 
@@ -91,7 +79,7 @@ class FrameworkInitialiser:
         }
 
 
-# For backwards compatibility - if run directly
-if __name__ == "__main__":
-    fw = FrameworkInitialiser()
-    fw.initialize()
+# # For backwards compatibility - if run directly
+# if __name__ == "__main__":
+#     fw = FrameworkInitialiser()
+#     fw.initialize()

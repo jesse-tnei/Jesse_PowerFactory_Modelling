@@ -1,7 +1,7 @@
 # Messaging.py
 # This file contains the Messaging class, which is used to handle messaging within the application.
 
-import GlobalRegistry as gbl
+from Framework import GlobalRegistry as gbl
 import datetime
 
 
@@ -137,7 +137,7 @@ class Messaging:
 
     #_________________________SPLASH SCREEN MESSAGE________________________
 
-    def OutputSplash(self):
+    def DisplayWelcomeMessage(self):
         import textwrap
 
         strFrameworkVer = gbl.gbl_sFrameworkVersion
@@ -165,7 +165,7 @@ class Messaging:
         strEngineType = ""
         bEngineError = False
         try:
-            strEngineType = gbl.Engine.get_version()
+            strEngineType = gbl.Engine.m_strVersion
         except:
             strEngineType = "Engine not available"
             bEngineError = False
@@ -173,13 +173,13 @@ class Messaging:
         # Author information
         strAuthor = ""
         try:
-            strAuthor = gbl.Engine.get_author()
+            strAuthor = gbl.Engine.GetAuthor()
         except:
             strAuthor = gbl.gbl_sAuthor
 
         # Add formatted lines
         strSplash += f"""
-        # Engine:      {strEngineType:<44}  #
+        # Engine:     {strEngineType:<44}   #
         # Framework:   {strFrameworkVer:<44}  #
         # Designer:    {strAuthor:<44}  #
         ##############################################################"""
