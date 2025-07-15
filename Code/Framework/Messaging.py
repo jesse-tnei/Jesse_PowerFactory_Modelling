@@ -173,7 +173,7 @@ class Messaging:
         # Author information
         strAuthor = ""
         try:
-            strAuthor = gbl.Engine.get_author()
+            strAuthor = gbl.Engine.GetAuthor()
         except:
             strAuthor = gbl.gbl_sAuthor
 
