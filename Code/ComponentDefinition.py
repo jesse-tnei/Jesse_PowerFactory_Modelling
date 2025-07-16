@@ -102,7 +102,7 @@ class Busbar(ComponentBaseTemplate):
         else:
             return str(self.BusID)
         
-    def StatusToEngine(self):
+    def SetDataModelComponentStatusToEngine(self):
         # Logic to update the engine with the busbar status
         bOK = False
         if self.BasicEngineModelUpdater:
@@ -142,6 +142,71 @@ class Busbar(ComponentBaseTemplate):
         if self.ContingencyAnalysisEngineModelUpdater:
             bOK = self.ContingencyAnalysisEngineModelUpdater.GetContingencyAnalysisResults(self)
         return bOK
+    
+    
+class Generator(ComponentBaseTemplate):
+    def __init__(self, BusID, GenID):
+        ComponentBaseTemplate.__init__(self)
+        try:
+            BusID = int(BusID)
+        except:
+            BusID = str(BusID)
+            
+        # gen unique identifier/ network mapping properties
+        self.BusID = BusID
+        self.GenID = str(GenID)
+        self.BusIndex = 0
+        self.BusName = ''
+        self.oBus = None
+        
+        #gen operational attributes
+        self.MW = 0.0
+        self.MVar = 0.0
+        self.MWCapacity = 0.0
+        self.MSG = 0.0
+        self.Qmax = 99999
+        self.Qmin = -99999
+        
+        
+        # Engine model updater based on the type of analysis
+        self.BasicEngineModelUpdater = None
+        self.LoadFlowEngineModelUpdater = None
+        self.HarmonicEngineModelUpdater = None
+        self.ContingencyAnalysisEngineModelUpdater = None
+        
+        
+    def GetDataModelComponentReadableName(self) ->str:
+        return f"{self.BusName}-{self.GenID})"
+    
+    
+    def GetDataModelComponentFromEngine(self):
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.GetGeneratorFromEngine(self)
+        return bOK
+    
+    def SetDataModelComponentToEngine(self):
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.SetGeneratorToEngine(self)
+        return bOK
+    
+    def SetDataModelComponentStatusToEngine(self):
+        # Logic to update the engine with the generator status
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.UpdateGeneratorStatus(self)
+        return bOK
+    
+    def GetDataModelComponentStatusFromEngine(self):
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.GetGeneratorStatusFromEngine(self)
+        return bOK
+    
+    
+    
+    
 
     
     
