@@ -9,26 +9,33 @@ class ComponentBaseTemplate:
         
         
     def SetDataModelComponentStatus(self, status, bUpdateEngine=True):
+        "By default, sets the datamodel component status to ON or OFF based on the status parameter. If bUpdateEngine is True, it will also update the engine status."
         self.ON = bool(status)
         if bUpdateEngine:
             return self.SetDataModelComponentStatusToEngine()
         
     def SwitchDataModelComponentOff(self):
+        "Switches the data model component off."
         self.ON = False
         
     def SwitchDataModelComponentOn(self):
+        "Switches the data model component on."
         self.ON = True
         
     def SwitchDataModelComponentStatus(self):
+        "Toggles the data model component status."
         self.ON = not self.ON
         
-    def GetDataModelComponentReadableName(self):
+    def GetDataModelComponentReadableName(self) -> str:
+        "Returns a readable name for the data model component. This should be overridden in subclasses to provide a meaningful name."
         return ""
     
     def GetDataModelComponentType(self):
+        "Returns the type of the data model component. This should be overridden in subclasses to provide a meaningful type."
         return self.__class__.__name__
     
     def ListDataModelComponentProperties(self):
+        "Returns a list of attributes of the data model component. This can be overridden in subclasses to provide specific attributes."
         lAttributes = self.__dict__
         return lAttributes
     
@@ -50,84 +57,92 @@ class ComponentBaseTemplate:
     
     
     
-    class Busbar(ComponentBaseTemplate):
-        def __init__(self, BusID):
-            ComponentBaseTemplate.__init__(self)
-            try:
-                BusID = int(BusID)
-            except:
-                BusID = str(BusID)
-            self.BusID = BusID
-            self.name = ''
-            self.kV = 0.0
-            self.Branches = []
-            self.Generators = []
-            self.Loads = []
-            self.Type = 0
-            self.Area = 0
-            self.Owner = ''
-            self.Disconnected = False
-            self.Slack = False
-            
-            # post load flow attributes
-            self.puVoltage = 1.0
-            self.busbarAngle = 0.0
-            
-            # Engine model updater
-            self.BasicEngineModelUpdater = None
-            self.LoadFlowEngineModelUpdater = None
-            self.HarmonicEngineModelUpdater = None
-            self.ContingencyAnalysisEngineModelUpdater = None
-            
-            
-            
-        def GetDataModelComponentReadableName(self):
-            if str(self.BusID) != str(self.name):
-                return f"{self.name}-({self.BusID})"
-            else:
-                return str(self.BusID)
-         
-        def StatusToEngine(self):
-            # Logic to update the engine with the busbar status
-            bOK = False
-            if self.BasicEngineModelUpdater:
-                bOK = self.BasicEngineModelUpdater.UpdateBusbarStatus(self)
-            return bOK
+class Busbar(ComponentBaseTemplate):
+    def __init__(self, BusID):
+        ComponentBaseTemplate.__init__(self)
+        try:
+            BusID = int(BusID)
+        except:
+            BusID = str(BusID)
+        self.BusID = BusID
+        self.name = ''
+        self.kV = 0.0
+        self.Branches = []
+        self.Generators = []
+        self.Loads = []
+        self.Type = 0
+        self.Area = 0
+        self.Owner = ''
+        self.Disconnected = False
+        self.Slack = False
         
-        def GetDataModelComponentStatusFromEngine(self):
-            bOK = False
-            if self.BasicEngineModelUpdater:
-                bOK = self.BasicEngineModelUpdater.GetBusbarStatusFromEngine(self)
-            return bOK
+        # post load flow attributes
+        self.VMagPu = 1.0
+        self.VMagkV = 0.0
+        self.VangDeg = 0.0
+        self.VangRad = 0.0
         
-        def GetDataModelComponentFromEngine(self):
-            bOK = False
-            if self.BasicEngineModelUpdater:
-                bOK = self.BasicEngineModelUpdater.GetBusbarFromEngine(self)
-            return bOK
+        #Harmonic attributes
+        self.THD = 0.0
+        self.VoltSum = 0.0
+        self.HarmVolts = {}
+        self.Distortions = {}
         
-        def SetDataModelComponentToEngine(self):
-            bOK = False
-            if self.BasicEngineModelUpdater:
-                bOK = self.BasicEngineModelUpdater.SetBusbarToEngine(self)
-            return bOK
+        # Engine model updater based on the type of analysis
+        self.BasicEngineModelUpdater = None
+        self.LoadFlowEngineModelUpdater = None
+        self.HarmonicEngineModelUpdater = None
+        self.ContingencyAnalysisEngineModelUpdater = None
         
-        def GetLoadFlowResuts(self):
-            bOK = False
-            if self.LoadFlowEngineModelUpdater:
-                bOK = self.LoadFlowEngineModelUpdater.GetLoadFlowResults(self)
-            return bOK
-        def GetHarmonicResults(self):
-            bOK = False
-            if self.HarmonicEngineModelUpdater:
-                bOK = self.HarmonicEngineModelUpdater.GetHarmonicResults(self)
-            return bOK
-        def GetContingencyAnalysisResults(self):
-            bOK = False
-            if self.ContingencyAnalysisEngineModelUpdater:
-                bOK = self.ContingencyAnalysisEngineModelUpdater.GetContingencyAnalysisResults(self)
-            return bOK
+        
+        
+    def GetDataModelComponentReadableName(self) ->str:
+        if str(self.BusID) != str(self.name):
+            return f"{self.name}-({self.BusID})"
+        else:
+            return str(self.BusID)
+        
+    def StatusToEngine(self):
+        # Logic to update the engine with the busbar status
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.UpdateBusbarStatus(self)
+        return bOK
     
+    def GetDataModelComponentStatusFromEngine(self):
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.GetBusbarStatusFromEngine(self)
+        return bOK
+    
+    def GetDataModelComponentFromEngine(self):
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.GetBusbarFromEngine(self)
+        return bOK
+    
+    def SetDataModelComponentToEngine(self):
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.SetBusbarToEngine(self)
+        return bOK
+    
+    def GetLoadFlowResuts(self):
+        bOK = False
+        if self.LoadFlowEngineModelUpdater:
+            bOK = self.LoadFlowEngineModelUpdater.GetLoadFlowResults(self)
+        return bOK
+    def GetHarmonicResults(self):
+        bOK = False
+        if self.HarmonicEngineModelUpdater:
+            bOK = self.HarmonicEngineModelUpdater.GetHarmonicResults(self)
+        return bOK
+    def GetContingencyAnalysisResults(self):
+        bOK = False
+        if self.ContingencyAnalysisEngineModelUpdater:
+            bOK = self.ContingencyAnalysisEngineModelUpdater.GetContingencyAnalysisResults(self)
+        return bOK
+
     
     
     
