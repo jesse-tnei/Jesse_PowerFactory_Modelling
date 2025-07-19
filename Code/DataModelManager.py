@@ -29,16 +29,16 @@ class DataModelManager:
         self.BusbarIdToIndex = {}
         self.b_UsebusbarMap = False
 
-    def AddBusbarToTab(self, oBusbar):
+    def addbusbartotab(self, oBusbar):
         """Add a busbar to the Busbar_TAB list."""
         self.b_UsebusbarMap = True
-        busID = oBusbar.GetAttribute("BusID", None)
+        busID = oBusbar.getattribute("BusID", None)
         if busID is not None:
             # assign stringID (busID) to index (current length of Busbar_TAB) to use list for faster lookups
             self.BusbarIdToIndex[busID] = len(self.Busbar_TAB)
         self.Busbar_TAB.append(oBusbar)
 
-    def FindBusbar(self, BusID):
+    def findbusbar(self, BusID):
         """
         Finds a bus object and its index in the busbar table given a busID
         Syntax:
@@ -54,14 +54,14 @@ class DataModelManager:
         else:
             # Fall back to linear search
             for nIndex, bus in enumerate(self.Busbar_TAB):
-                if bus.GetAttribute("BusID") == BusID:
+                if bus.getattribute("BusID") == BusID:
                     return bus, nIndex
 
         # Not found
         nIndex = -1
         return None, nIndex
 
-    def FindBranch(self, Bus1ID, Bus2ID, Bus3ID, BranchID, bAllowTransposedSearch=True):
+    def findbranch(self, Bus1ID, Bus2ID, Bus3ID, BranchID, bAllowTransposedSearch=True):
         """
         Finds a branch object and its index in the branch table given bus IDs and branch ID.
         Syntax:
@@ -89,28 +89,28 @@ class DataModelManager:
         BranchID = str.strip(BranchID)
 
         if self.b_UsebusbarMap:
-            oBus1, nBus1Index = self.FindBusbar(Bus1ID)
+            oBus1, nBus1Index = self.findbusbar(Bus1ID)
             if oBus1:
                 for nBranchIdx in oBus1.Branches:
                     branch = self.Branch_TAB[nBranchIdx]
-                    if branch.GetAttribute("BranchID") == BranchID:
-                        if branch.GetAttribute("Bus1ID") == Bus1ID and \
-                           branch.GetAttribute("Bus2ID") == Bus2ID and \
-                           branch.GetAttribute("Bus3ID") == Bus3ID:
+                    if branch.getattribute("BranchID") == BranchID:
+                        if branch.getattribute("Bus1ID") == Bus1ID and \
+                           branch.getattribute("Bus2ID") == Bus2ID and \
+                           branch.getattribute("Bus3ID") == Bus3ID:
                             oBranch = branch
                             nIndex = nBranchIdx
                             break
                         if bAllowTransposedSearch:
-                            if branch.GetAttribute("Bus1ID") == Bus2ID and \
-                               branch.GetAttribute("Bus2ID") == Bus1ID and \
-                               branch.GetAttribute("Bus3ID") == Bus3ID:
+                            if branch.getattribute("Bus1ID") == Bus2ID and \
+                               branch.getattribute("Bus2ID") == Bus1ID and \
+                               branch.getattribute("Bus3ID") == Bus3ID:
                                 oBranch = branch
                                 nIndex = nBranchIdx
                                 break
                             else:
-                                if branch.GetAttribute("Bus1ID") == Bus3ID and \
-                                   branch.GetAttribute("Bus2ID") == Bus2ID and \
-                                   branch.GetAttribute("Bus3ID") == Bus1ID:
+                                if branch.getattribute("Bus1ID") == Bus3ID and \
+                                   branch.getattribute("Bus2ID") == Bus2ID and \
+                                   branch.getattribute("Bus3ID") == Bus1ID:
                                     oBranch = branch
                                     nIndex = nBranchIdx
                                     break
@@ -118,24 +118,24 @@ class DataModelManager:
         # if not found in busbar map, do linear search
         if oBranch is None:
             for nBranchIdx, branch in enumerate(self.Branch_TAB):
-                if branch.GetAttribute("BranchID") == BranchID:
-                    if branch.GetAttribute("Bus1ID") == Bus1ID and \
-                       branch.GetAttribute("Bus2ID") == Bus2ID and \
-                       branch.GetAttribute("Bus3ID") == Bus3ID:
+                if branch.getattribute("BranchID") == BranchID:
+                    if branch.getattribute("Bus1ID") == Bus1ID and \
+                       branch.getattribute("Bus2ID") == Bus2ID and \
+                       branch.getattribute("Bus3ID") == Bus3ID:
                         oBranch = branch
                         nIndex = nBranchIdx
                         break
                     if bAllowTransposedSearch:
-                        if branch.GetAttribute("Bus1ID") == Bus2ID and \
-                           branch.GetAttribute("Bus2ID") == Bus1ID and \
-                           branch.GetAttribute("Bus3ID") == Bus3ID:
+                        if branch.getattribute("Bus1ID") == Bus2ID and \
+                           branch.getattribute("Bus2ID") == Bus1ID and \
+                           branch.getattribute("Bus3ID") == Bus3ID:
                             oBranch = branch
                             nIndex = nBranchIdx
                             break
                         else:
-                            if branch.GetAttribute("Bus1ID") == Bus3ID and \
-                               branch.GetAttribute("Bus2ID") == Bus2ID and \
-                               branch.GetAttribute("Bus3ID") == Bus1ID:
+                            if branch.getattribute("Bus1ID") == Bus3ID and \
+                               branch.getattribute("Bus2ID") == Bus2ID and \
+                               branch.getattribute("Bus3ID") == Bus1ID:
                                 oBranch = branch
                                 nIndex = nBranchIdx
                                 break
@@ -144,23 +144,23 @@ class DataModelManager:
             nIndex = -1
         return oBranch, nIndex
 
-    def AddGeneratorToTab(self, oGenerator):
+    def addgentotab(self, oGenerator):
         """Add a generator to the Gen_TAB list and update busbar mapping."""
         gen_index = len(self.Gen_TAB)
         self.Gen_TAB.append(oGenerator)
 
         # If using busbar map, add generator index to the busbar's generator list
         if self.b_UsebusbarMap:
-            busID = oGenerator.GetAttribute("BusID")
+            busID = oGenerator.getattribute("BusID")
             if busID is not None:
-                oBus, _ = self.FindBusbar(busID)
+                oBus, _ = self.findbusbar(busID)
                 if oBus is not None:
                     # Ensure the busbar has a Generators list
                     if not hasattr(oBus, 'Generators'):
                         oBus.Generators = []
                     oBus.Generators.append(gen_index)
 
-    def FindGen(self, BusID, GenID):
+    def findgen(self, BusID, GenID):
         """
         Finds a generator object and its index given a busID and gen ID
         If not found returns None, -1
@@ -171,41 +171,41 @@ class DataModelManager:
 
         if self.b_UsebusbarMap:
             # Use fast busbar map lookup
-            oBus, _ = self.FindBusbar(BusID)
+            oBus, _ = self.findbusbar(BusID)
             if oBus is not None and hasattr(oBus, 'Generators'):
                 for nGenIdx in oBus.Generators:
                     gen = self.Gen_TAB[nGenIdx]
-                    strGenID = str(gen.GetAttribute("GenID")).strip()
+                    strGenID = str(gen.getattribute("GenID")).strip()
                     if strGenID == GenID:
                         return gen, nGenIdx
         else:
             # Fall back to linear search
             for nGenIdx, gen in enumerate(self.Gen_TAB):
-                gen_bus_id = gen.GetAttribute("BusID")
-                strGenID = str(gen.GetAttribute("GenID")).strip()
+                gen_bus_id = gen.getattribute("BusID")
+                strGenID = str(gen.getattribute("GenID")).strip()
                 if gen_bus_id == BusID and strGenID == GenID:
                     return gen, nGenIdx
 
         # Not found
         return None, -1
 
-    def AddLoadToTab(self, oLoad):
+    def addloadtotab(self, oLoad):
         """Add a load to the Load_TAB list and update busbar mapping."""
         load_index = len(self.Load_TAB)
         self.Load_TAB.append(oLoad)
 
         # If using busbar map, add load index to the busbar's load list
         if self.b_UsebusbarMap:
-            busID = oLoad.GetAttribute("BusID")
+            busID = oLoad.getattribute("BusID")
             if busID is not None:
-                oBus, _ = self.FindBusbar(busID)
+                oBus, _ = self.findbusbar(busID)
                 if oBus is not None:
                     # Ensure the busbar has a Loads list
                     if not hasattr(oBus, 'Loads'):
                         oBus.Loads = []
                     oBus.Loads.append(load_index)
 
-    def FindLoad(self, BusID, LoadID):
+    def findload(self, BusID, LoadID):
         """
         Finds a load object and its index given a busID and load ID
         If not found returns None, -1
@@ -214,25 +214,25 @@ class DataModelManager:
 
         if self.b_UsebusbarMap:
             # Use fast busbar map lookup
-            oBus, _ = self.FindBusbar(BusID)
+            oBus, _ = self.findbusbar(BusID)
             if oBus is not None and hasattr(oBus, 'Loads'):
                 for nLoadIdx in oBus.Loads:
                     load = self.Load_TAB[nLoadIdx]
-                    strLoadID = str(load.GetAttribute("LoadID")).strip()
+                    strLoadID = str(load.getattribute("LoadID")).strip()
                     if strLoadID == LoadID:
                         return load, nLoadIdx
         else:
             # Fall back to linear search
             for nLoadIdx, load in enumerate(self.Load_TAB):
-                load_bus_id = load.GetAttribute("BusID")
-                strLoadID = str(load.GetAttribute("LoadID")).strip()
+                load_bus_id = load.getattribute("BusID")
+                strLoadID = str(load.getattribute("LoadID")).strip()
                 if load_bus_id == BusID and strLoadID == LoadID:
                     return load, nLoadIdx
 
         # Not found
         return None, -1
 
-    def GetAllLoadsOnBus(self, BusID):
+    def getallloadsonbus(self, BusID):
         """
         Get all loads connected to a specific bus
         Returns list of (load_object, index) tuples
@@ -241,7 +241,7 @@ class DataModelManager:
 
         if self.b_UsebusbarMap:
             # Use fast busbar map lookup
-            oBus, _ = self.FindBusbar(BusID)
+            oBus, _ = self.findbusbar(BusID)
             if oBus is not None and hasattr(oBus, 'Loads'):
                 for nLoadIdx in oBus.Loads:
                     load = self.Load_TAB[nLoadIdx]
@@ -249,13 +249,13 @@ class DataModelManager:
         else:
             # Fall back to linear search
             for nLoadIdx, load in enumerate(self.Load_TAB):
-                load_bus_id = load.GetAttribute("BusID")
+                load_bus_id = load.getattribute("BusID")
                 if load_bus_id == BusID:
                     loads.append((load, nLoadIdx))
 
         return loads
 
-    def GetAllGeneratorsOnBus(self, BusID):
+    def getallgensonbus(self, BusID):
         """
         Get all generators connected to a specific bus
         Returns list of (generator_object, index) tuples
@@ -264,7 +264,7 @@ class DataModelManager:
 
         if self.b_UsebusbarMap:
             # Use fast busbar map lookup
-            oBus, _ = self.FindBusbar(BusID)
+            oBus, _ = self.findbusbar(BusID)
             if oBus is not None and hasattr(oBus, 'Generators'):
                 for nGenIdx in oBus.Generators:
                     gen = self.Gen_TAB[nGenIdx]
@@ -272,7 +272,7 @@ class DataModelManager:
         else:
             # Fall back to linear search
             for nGenIdx, gen in enumerate(self.Gen_TAB):
-                gen_bus_id = gen.GetAttribute("BusID")
+                gen_bus_id = gen.getattribute("BusID")
                 if gen_bus_id == BusID:
                     generators.append((gen, nGenIdx))
 
