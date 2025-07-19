@@ -15,12 +15,12 @@ class FrameworkInitialiser:
     """Framework initialization and management class"""
 
     def __init__(self):
-        self.is_initialized = False
+        self.isinitialized = False
         self.engine = None  # Future: Will hold Engine instance
 
     def initialize(self, engine=None):
         """Initialize all framework components"""
-        if self.is_initialized:
+        if self.isinitialized:
             print("Framework already initialized!")
             return
 
@@ -65,11 +65,11 @@ class FrameworkInitialiser:
         except Exception as e:
             print(f"Error during cleanup: {e}")
 
-    def is_ready(self):
+    def isready(self):
         """Check if framework is initialized and ready"""
         return self.is_initialized
 
-    def get_status(self):
+    def getstatus(self):
         """Get framework status information"""
         return {
             'initialized': self.is_initialized,
