@@ -10,6 +10,10 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 from Framework import GlobalRegistry as gbl
 from Framework import Messaging as Msg
 from DataModelManager import DataModelManager
+from Framework import EngineDataModelInterfaceContainer
+from Framework.EngineDataModelInterfaceContainer import EngineDataModelInterfaceContainer
+from ComponentManager import ComponentBaseTemplate
+
 
 class FrameworkInitialiser:
     """Framework initialization and management class"""
@@ -41,7 +45,9 @@ class FrameworkInitialiser:
             gbl.gbl_sVersion = getattr(self.engine, 'm_strVersion', "Not Specified")
             gbl.gbl_sAuthor = getattr(self.engine, 'm_strAuthor', "Not Specified")
             gbl.Engine = self.engine
-            gbl.DataModel = DataModelManager()  
+            gbl.DataModelInterface = EngineDataModelInterfaceContainer()
+            ComponentBaseTemplate.m_oEngineDataModelInterface = gbl.DataModelInterface
+            gbl.DataModelManager = DataModelManager() 
 
             self.is_initialized = True
 

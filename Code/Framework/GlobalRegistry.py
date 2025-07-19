@@ -16,7 +16,8 @@ VERSION_TESTING = True
 
 
 Engine       = None   # Generic analysis engine interface
-DataModel    = None   # Stores data collected from the power systems network model via the engine
+DataModelInterface    = None   # Stores data collected from the power systems network model via the engine
 DataFactory  = None   # Entry point for data model creation and management
 Msg          = None   # messaging class
+
 

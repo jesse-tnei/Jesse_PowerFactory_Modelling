@@ -98,7 +98,6 @@ class EnginePowerFactory(EngineContainer):
         if version not in self.m_AllowableVersions:
             self.m_oMsg.AddError(f"Unsupported PowerFactory version: {version}")
             return False
-        self.m_ChosenVersion = version
         install_path = ""
         if version == 2023:
             install_path = self.m_PowerFactoryInstallPath2023
@@ -121,7 +120,6 @@ class EnginePowerFactory(EngineContainer):
             if not self.m_pFApp:
                 raise ImportError("Failed to get PowerFactory application instance")
             if self.ShowLoadedApplication:
-                self.m_oMsg.AddInfo(f"PowerFactory {version} environment loaded successfully")
                 self.m_pFApp.Show()
             self.m_strTypeOfEngine = "Automated PowerFactory Tool"
             self.m_strVersion = self.m_AllowableVersions[version]
