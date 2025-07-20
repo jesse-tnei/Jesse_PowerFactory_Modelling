@@ -50,7 +50,7 @@ class EngineDataModelInterfaceContainer:
         """Sets busbars to the network."""
         raise NotImplementedError("This method should be implemented in subclasses.")
     
-    def getbusbarvaluesfromnetwork(self):
+    def getbusbarvaluesfromnetwork(self, busbar):
         """Retrieves busbar values from the network."""
         raise NotImplementedError("This method should be implemented in subclasses.")
     

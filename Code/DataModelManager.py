@@ -32,11 +32,15 @@ class DataModelManager:
     def addbusbartotab(self, oBusbar):
         """Add a busbar to the Busbar_TAB list."""
         self.b_UsebusbarMap = True
-        busID = oBusbar.getattribute("BusID", None)
+        busID = oBusbar.__getattribute__("BusID")
         if busID is not None:
             # assign stringID (busID) to index (current length of Busbar_TAB) to use list for faster lookups
             self.BusbarIdToIndex[busID] = len(self.Busbar_TAB)
-        self.Busbar_TAB.append(oBusbar)
+            self.Busbar_TAB.append(oBusbar)
+            return True
+        else:
+            # If busID is None, we cannot add the busbar
+            return False
 
     def findbusbar(self, BusID):
         """
