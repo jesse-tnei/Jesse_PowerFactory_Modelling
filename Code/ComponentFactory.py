@@ -1,7 +1,7 @@
 
 from Framework import GlobalRegistry as gbl
 #from ComponentManager import Busbar, Generator, Load, Branch
-from ComponentManager import Busbar, Generator
+from ComponentManager import Busbar, Generator, Load
 
 class ComponentFactory():
     def __init__(self):
@@ -15,9 +15,9 @@ class ComponentFactory():
         """Creates a generator component with the given BusID and GenID"""
         return Generator(BusID, GenID)
     
-    # def createload(self, BusID, LoadID):
-    #     """Creates a load component with the given BusID and LoadID"""
-    #     return Load(BusID, LoadID)
+    def createload(self, BusID, LoadID):
+        """Creates a load component with the given BusID and LoadID"""
+        return Load(BusID, LoadID)
     
     # def createbranch(self, BusID1, BusID2, BranchID):
     #     """Creates a branch component with the given BusID1, BusID2 and BranchID"""

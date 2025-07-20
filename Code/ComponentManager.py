@@ -206,3 +206,61 @@ class Generator(ComponentBaseTemplate):
         if self.BasicEngineModelUpdater:
             bOK = self.BasicEngineModelUpdater.getgeneratorstatusfromengine(self)
         return bOK
+    
+class Load(ComponentBaseTemplate):
+    def __init__(self, BusID, LoadID):
+        ComponentBaseTemplate.__init__(self)
+        try:
+            BusID = int(BusID)
+        except:
+            BusID = str(BusID)
+
+        # load unique identifier/ network mapping properties
+        self.BusID = BusID
+        self.LoadID = str(LoadID)
+        self.BusIndex = 0
+        self.BusName = ''
+        self.oBus = None
+        
+        # load operational attributes
+        self.MW = 0.0
+        self.MVar = 0.0
+        self.MWCapacity = 0.0
+        self.MSG = 0.0
+        self.Qmax = 99999
+        self.Qmin = -99999
+        
+        # Engine model updater based on the type of analysis
+        self.BasicEngineModelUpdater = None
+        self.LoadFlowEngineModelUpdater = None
+        self.HarmonicEngineModelUpdater = None
+        self.ContingencyAnalysisEngineModelUpdater = None
+        
+        
+    def getdatamodelcomponentreadablename(self) -> str:
+        return f"{self.BusName}-{self.LoadID})"
+    
+    def getdatamodelcomponentfromengine(self):
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.getloadfromengine(self)
+        return bOK
+    
+    def setdatamodelcomponenttoengine(self):
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.setloadtoengine(self)
+        return bOK
+    
+    def setdatamodelcomponentstatustoengine(self):
+        # Logic to update the engine with the load status
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.updateloadstatus(self)
+        return bOK
+    def getdatamodelcomponentstatusfromengine(self):
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.getloadstatusfromengine(self)
+        return bOK
+    

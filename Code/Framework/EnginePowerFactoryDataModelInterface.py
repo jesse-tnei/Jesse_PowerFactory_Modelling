@@ -6,9 +6,12 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
     def __init__(self, gbl):
         EngineDataModelInterfaceContainer.__init__(self)
         self.terminal_dictionary = {}  # Dictionary to hold terminal IDs and their corresponding bus IDs
+        self.load_dictionary = {}  # Dictionary to hold load IDs and their corresponding bus IDs
         
         
-        
+     
+     
+     #____________________BUSBAR METHODS________________________#   
     def getbusbarsfromnetwork(self):
         """Retrieves busbars from the PowerFactory network."""
         bOK = True
@@ -63,4 +66,54 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                 busbar.Disconnected = not ON             
         return bOK
         
-        
+#____________________BRANCH METHODS________________________#
+
+#____________________LOAD METHODS________________________#
+
+    def getloadsfromnetwork(self):
+        """Retrieves loads from the PowerFactory network."""
+        bOK = True
+        if bOK:
+            loads = gbl.Engine.m_pFApp.GetCalcRelevantObjects("ElmLod")
+            gbl.Msg.AddRawMessage(f"Total loads retrieved successfully from the network: {len(loads)}")
+            for load in loads:
+                load_id = load.GetAttribute("loc_name")
+                self.load_dictionary[load_id] = load
+                terminal = load.GetAttribute("bus1")
+                if terminal:
+                    bus_id = self._standardize_terminal_id(terminal)
+                    if bus_id and bus_id in self.terminal_dictionary:
+                        load_data = gbl.DataFactory.createload(bus_id, load_id)
+                        if load_data is None:
+                            gbl.Msg.AddError(f"Failed to create load for terminal {bus_id}.")
+                            continue
+                        if not self.getloadvaluesfromnetwork(load_data):
+                            gbl.Msg.AddError(f"Failed to retrieve values for load {load_data.LoadID}.")
+                            continue
+                        if not gbl.DataModelManager.addloadtotab(load_data):
+                            gbl.Msg.AddError(f"Failed to add load {load_data.LoadID} to DataModel.")
+                            continue
+        gbl.Msg.AddRawMessage(f"Total loads added to DataModel: {len(self.load_dictionary)}")
+        return bOK
+    
+    def getloadvaluesfromnetwork(self, load):
+        """Retrieves load values from the PowerFactory network."""
+        bOK = True
+        if bOK:
+            load_obj = self.load_dictionary.get(load.LoadID)
+            if load_obj:
+                name = load_obj.GetAttribute("loc_name")
+                P = load_obj.GetAttribute("plini")
+                Q = load_obj.GetAttribute("qlini")
+                ON = not(bool(load_obj.GetAttribute("outserv")))
+                
+                if name is None or P is None or Q is None or ON is None:
+                    gbl.Msg.AddError(f"Failed to retrieve values for load {load.LoadID}.")
+                    bOK = False
+                else:
+                    load.name = name
+                    load.MW = P
+                    load.MVar = Q
+                    load.ON = ON
+        return bOK
+                

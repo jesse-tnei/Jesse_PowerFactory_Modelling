@@ -195,19 +195,25 @@ class DataModelManager:
 
     def addloadtotab(self, oLoad):
         """Add a load to the Load_TAB list and update busbar mapping."""
+        bOK = True
+        if oLoad is None:
+            bOK = False
+            return bOK
         load_index = len(self.Load_TAB)
         self.Load_TAB.append(oLoad)
 
         # If using busbar map, add load index to the busbar's load list
         if self.b_UsebusbarMap:
-            busID = oLoad.getattribute("BusID")
+            busID = oLoad.__getattribute__("BusID")
             if busID is not None:
                 oBus, _ = self.findbusbar(busID)
                 if oBus is not None:
                     # Ensure the busbar has a Loads list
                     if not hasattr(oBus, 'Loads'):
                         oBus.Loads = []
-                    oBus.Loads.append(load_index)
+                    bOK = oBus.Loads.append(load_index)
+                    bOK = True
+        return bOK
 
     def findload(self, BusID, LoadID):
         """
