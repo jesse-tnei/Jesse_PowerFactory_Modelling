@@ -8,6 +8,8 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         self.terminal_dictionary = {}  # Dictionary to hold terminal IDs and their corresponding bus IDs
         self.load_dictionary = {}  # Dictionary to hold load IDs and their corresponding bus IDs
         
+        self.generator_dictionary = {}  # Dictionary to hold generator IDs and their corresponding bus IDs
+        
         
      
      
@@ -93,7 +95,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                         if not gbl.DataModelManager.addloadtotab(load_data):
                             gbl.Msg.AddError(f"Failed to add load {load_data.LoadID} to DataModel.")
                             continue
-        gbl.Msg.AddRawMessage(f"Total loads added to DataModel: {len(self.load_dictionary)}")
+        gbl.Msg.AddRawMessage(f"Total loads added to DataModel: {len(gbl.DataModelManager.Load_TAB)}")
         return bOK
     
     def getloadvaluesfromnetwork(self, load):
@@ -115,5 +117,62 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                     load.MW = P
                     load.MVar = Q
                     load.ON = ON
+        return bOK
+    
+    
+#____________________GENERATOR METHODS________________________#
+    def getgeneratorsfromnetwork(self):
+        """Retrieves generators from the PowerFactory network."""
+        bOK = True
+        if bOK:
+            generators = gbl.Engine.m_pFApp.GetCalcRelevantObjects("*.ElmGen, *.ElmGenstat, *.ElmSym")
+            gbl.Msg.AddRawMessage(f"Total generators retrieved successfully from the network: {len(generators)}")
+            for generator in generators:
+                gen_id = generator.GetAttribute("loc_name")
+                self.generator_dictionary[gen_id] = generator
+                terminal = generator.GetAttribute("bus1")
+                if terminal:
+                    bus_id = self._standardize_terminal_id(terminal)
+                    if bus_id and bus_id in self.terminal_dictionary:
+                        gen_data = gbl.DataFactory.creategenerator(bus_id, gen_id)
+                        if gen_data is None:
+                            gbl.Msg.AddError(f"Failed to create generator for terminal {bus_id}.")
+                            continue
+                        if not self.getgeneratorvaluesfromnetwork(gen_data):
+                            gbl.Msg.AddError(f"Failed to retrieve values for generator {gen_data.GenID}.")
+                            continue
+                        if not gbl.DataModelManager.addgentotab(gen_data):
+                            gbl.Msg.AddError(f"Failed to add generator {gen_data.GenID} to DataModel.")
+                            continue
+        gbl.Msg.AddRawMessage(f"Total generators added to DataModel: {len(gbl.DataModelManager.Gen_TAB)}")
+        return bOK
+    
+    def getgeneratorvaluesfromnetwork(self, generator):
+        """Retrieves generator values from the PowerFactory network."""
+        bOK = True
+        if bOK:
+            gen_obj = self.generator_dictionary.get(generator.GenID)
+            if gen_obj:
+                name = gen_obj.GetAttribute("loc_name")
+                P = gen_obj.GetAttribute("pgini")
+                Q = gen_obj.GetAttribute("qgini")
+                ON = not(bool(gen_obj.GetAttribute("outserv")))
+                pf = gen_obj.GetAttribute("cosgini")
+                Pnom = gen_obj.GetAttribute("Pnom")
+                Qmax = gen_obj.GetAttribute("cQ_max")
+                Qmin = gen_obj.GetAttribute("cQ_min")
+                
+                if any(x is None for x in [name, P, Q, ON, pf, Pnom, Qmax, Qmin]):
+                    gbl.Msg.AddError(f"Failed to retrieve values for generator {generator.GeneratorID}.")
+                    bOK = False
+                else:
+                    generator.name = name
+                    generator.MW = P
+                    generator.MVar = Q
+                    generator.ON = ON
+                    generator.pf = pf
+                    generator.MWCapacity = Pnom
+                    generator.Qmax = Qmax
+                    generator.Qmin = Qmin
         return bOK
                 

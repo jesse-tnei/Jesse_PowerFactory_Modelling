@@ -9,4 +9,5 @@ if __name__ == "__main__":
     gbl.Engine.activatepowerfactorystudycase("Study Case")
     gbl.DataModelInterface.getbusbarsfromnetwork()
     gbl.DataModelInterface.getloadsfromnetwork()
+    gbl.DataModelInterface.getgeneratorsfromnetwork()
     print("Framework initialized and ready to use!")

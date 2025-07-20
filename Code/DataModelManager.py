@@ -150,19 +150,25 @@ class DataModelManager:
 
     def addgentotab(self, oGenerator):
         """Add a generator to the Gen_TAB list and update busbar mapping."""
+        bOK = True
+        if oGenerator is None:
+            bOK = False
+            return bOK
         gen_index = len(self.Gen_TAB)
         self.Gen_TAB.append(oGenerator)
 
         # If using busbar map, add generator index to the busbar's generator list
         if self.b_UsebusbarMap:
-            busID = oGenerator.getattribute("BusID")
+            busID = oGenerator.__getattribute__("BusID")
             if busID is not None:
                 oBus, _ = self.findbusbar(busID)
                 if oBus is not None:
                     # Ensure the busbar has a Generators list
                     if not hasattr(oBus, 'Generators'):
                         oBus.Generators = []
-                    oBus.Generators.append(gen_index)
+                    bOK = oBus.Generators.append(gen_index)
+                    bOK = True
+        return bOK
 
     def findgen(self, BusID, GenID):
         """
