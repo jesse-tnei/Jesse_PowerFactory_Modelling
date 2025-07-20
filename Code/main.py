@@ -7,5 +7,5 @@ if __name__ == "__main__":
     gbl.Msg.DisplayWelcomeMessage()
     gbl.Engine.activatepowerfactorynetwork(r"Personal_Learning\Load Flow")
     gbl.Engine.activatepowerfactorystudycase("Study Case")
-    gbl.Engine.getauthor()
+    gbl.DataModelInterface.getbusbarsfromnetwork()
     print("Framework initialized and ready to use!")
