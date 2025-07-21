@@ -12,9 +12,28 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         self.branch_dictionary = {}  # Dictionary to hold branch IDs and their corresponding bus IDs
         
         
-     
-     
-     #____________________BUSBAR METHODS________________________#   
+        
+    
+    
+    #____________________OVERALL DATAMODELMANAGER LOADING METHODS________________________#  
+    # def passelementsfromnetworktodatamodelmanager(self):
+    #     """This method retrieves elements from the network and passes them to the DataModelManager."""
+    #     bOK = True
+    #     if bOK:
+    #         bOK = self.getbusbarsfromnetwork()
+    #     if bOK:
+    #         bOK = self.getbranchesfromnetwork()
+    #     if bOK:
+    #         bOK = self.getgeneratorsfromnetwork()
+    #     if bOK:
+    #         bOK = self.getloadsfromnetwork()
+    #     if bOK:
+    #         bOK = self.getexternalgridsfromnetwork()
+    #     return bOK
+
+    #____________________BUSBAR METHODS________________________#
+
+
     def getbusbarsfromnetwork(self):
         """Retrieves busbars from the PowerFactory network."""
         bOK = True
@@ -68,6 +87,11 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                 busbar.kV = VMagkV
                 busbar.Disconnected = not ON             
         return bOK
+    
+    
+    
+    
+    
         
 #____________________BRANCH METHODS________________________#
     def getbranchesfromnetwork(self):
@@ -186,6 +210,12 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
 
         return bOK
 
+
+
+
+
+
+
 #____________________LOAD METHODS________________________#
 
     def getloadsfromnetwork(self):
@@ -290,5 +320,64 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                     gen_item.MWCapacity = Pnom
                     gen_item.Qmax = Qmax
                     gen_item.Qmin = Qmin
+        return bOK
+    
+    def getexternalgridsfromnetwork(self):
+        """Retrieves external grids from the PowerFactory network."""
+        bOK = True
+        initialgentablength = len(gbl.DataModelManager.Gen_TAB)
+        if bOK:
+            external_grids = gbl.Engine.m_pFApp.GetCalcRelevantObjects("ElmXnet")
+            gbl.Msg.AddRawMessage(f"Total external grids retrieved successfully from the network: {len(external_grids)}")
+            for ext_grid in external_grids:
+                ext_grid_id = ext_grid.GetAttribute("loc_name")
+                terminal = ext_grid.GetAttribute("bus1")
+                if terminal:
+                    bus_id = self._standardize_terminal_id(terminal)
+                    if bus_id and bus_id in self.terminal_dictionary:
+                        self.generator_dictionary[ext_grid_id] = ext_grid
+                        ext_grid_item = gbl.DataFactory.creategenerator(bus_id, ext_grid_id)
+                        if ext_grid_item is None:
+                            gbl.Msg.AddError(f"Failed to create external grid for terminal {bus_id}.")
+                            continue
+                        ext_grid_item.IsExternalGrid = True
+                        if not self.getexternalgridvaluesfromnetwork(ext_grid_item):
+                            gbl.Msg.AddError(f"Failed to retrieve values for external grid {ext_grid_item.GenID}.")
+                            continue
+                        if ext_grid_item.BusType == "SL":
+                            ext_grid_item.oBus1.Slack = True
+                        if not gbl.DataModelManager.addgentotab(ext_grid_item):
+                            gbl.Msg.AddError(f"Failed to add external grid {ext_grid_item.GenID} to DataModel.")
+                            continue
+        gbl.Msg.AddRawMessage(f"Total external grids added to DataModel: {len(gbl.DataModelManager.Gen_TAB) - initialgentablength}")
+        return bOK
+        
+    def getexternalgridvaluesfromnetwork(self, ext_grid_item):
+        """Retrieves external grid values from the PowerFactory network."""
+        bOK = True
+        if bOK:
+            ext_grid_obj = self.generator_dictionary.get(ext_grid_item.GenID)
+            if ext_grid_obj:
+                name = ext_grid_obj.GetAttribute("loc_name")
+                bustype = ext_grid_obj.GetAttribute("bustp")
+                apparent_power = ext_grid_obj.GetAttribute("sgini")
+                ON = not(bool(ext_grid_obj.GetAttribute("outserv")))
+                pf = ext_grid_obj.GetAttribute("cosgini")
+                inductiveorcapacitive = ext_grid_obj.GetAttribute("pf_recap") if hasattr(ext_grid_obj, 'pf_recap') else None
+                if inductiveorcapacitive == 0:
+                    inductiveorcapacitive = "Inductive"
+                elif inductiveorcapacitive == 1:
+                    inductiveorcapacitive = "Capacitive"
+
+                if any(x is None for x in [name, bustype, apparent_power, ON, pf, inductiveorcapacitive]):
+                    gbl.Msg.AddError(f"Failed to retrieve values for external grid {ext_grid_item.ExtGridID}.")
+                    bOK = False
+                else:
+                    ext_grid_item.name = name
+                    ext_grid_item.MVA = apparent_power
+                    ext_grid_item.inductiveorcapacitive = inductiveorcapacitive
+                    ext_grid_item.ON = ON
+                    ext_grid_item.pf = pf
+                    ext_grid_item.BusType = bustype
         return bOK
                 
