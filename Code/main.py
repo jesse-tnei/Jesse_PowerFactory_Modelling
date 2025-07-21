@@ -10,4 +10,6 @@ if __name__ == "__main__":
     gbl.DataModelInterface.getbusbarsfromnetwork()
     gbl.DataModelInterface.getloadsfromnetwork()
     gbl.DataModelInterface.getgeneratorsfromnetwork()
+    gbl.DataModelInterface.getbranchesfromnetwork()
+    
     print("Framework initialized and ready to use!")
