@@ -9,6 +9,7 @@ class EngineDataModelInterfaceContainer:
     def __init__(self):
         self.m_oEngine = gbl.Engine
         self.m_oMsg = gbl.Msg
+        self.RatingstoCopy = {}
 
     
     #__________________________ENGINE DATA MODEL INTERFACE METHODS________________________
@@ -38,6 +39,13 @@ class EngineDataModelInterfaceContainer:
             bOK = self.setloadtonetwork()
 
         return bOK
+    
+    def copybranchratings(self, branch):
+        for sNewRating, sOldRating in self.RatingstoCopy.items():
+            try:
+                branch.__dict__[sNewRating] = branch.__dict__[sOldRating]
+            except KeyError:
+                self.m_oMsg.AddError(f"Rating {sOldRating} not found in branch {branch.BranchID}.")
     
     
     #__________________COMPONENT-SPECIFIC METHOD TEMPLATES____________________________________#
