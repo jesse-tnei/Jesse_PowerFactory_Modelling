@@ -124,7 +124,67 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         return bOK
     
     def get_transformersfromnetwork(self):
-        pass
+        """Retrieves transformers from the PowerFactory network."""
+        bOK = True
+        initialbranchtablength = len(gbl.DataModelManager.Branch_TAB)
+        if bOK:
+            transformers = gbl.Engine.m_pFApp.GetCalcRelevantObjects("*.ElmTr2,")
+            gbl.Msg.AddRawMessage(f"Total transformers retrieved successfully from the network: {len(transformers)}")
+            for transformer in transformers:
+                transformer_id = transformer.GetAttribute("loc_name")
+                self.branch_dictionary[transformer_id] = transformer
+                terminal1 = transformer.GetAttribute("bushv")
+                terminal2 = transformer.GetAttribute("buslv")
+                terminal3 = transformer.GetAttribute("busmv") if hasattr(transformer, 'busmv') else None
+                if terminal1 and terminal2 and not terminal3:
+                    bus1_id = self._standardize_terminal_id(terminal1)
+                    bus2_id = self._standardize_terminal_id(terminal2)
+                    if bus1_id and bus2_id and bus1_id in self.terminal_dictionary and bus2_id in self.terminal_dictionary:
+                        transformer_datamodel = gbl.DataFactory.createbranch(bus1_id, bus2_id, 0, transformer_id)
+                        if transformer_datamodel is None:
+                            gbl.Msg.AddError(f"Failed to create transformer for terminals {bus1_id} and {bus2_id}.")
+                            continue
+                        transformer_datamodel.IsTransformer = True
+                        if not self.gettransformervvaluesfromnetwork(transformer_datamodel):
+                            gbl.Msg.AddError(f"Failed to retrieve values for transformer {transformer_datamodel.BranchID}.")
+                            continue
+                        gbl.DataModelManager.Branch_TAB.append(transformer_datamodel)
+                        
+                if terminal1 and terminal2 and terminal3:
+                    bus1_id = self._standardize_terminal_id(terminal1)
+                    bus2_id = self._standardize_terminal_id(terminal2)
+                    bus3_id = self._standardize_terminal_id(terminal3)
+                    if bus1_id and bus2_id and bus3_id and bus1_id in self.terminal_dictionary and bus2_id in self.terminal_dictionary and bus3_id in self.terminal_dictionary:
+                        transformer_datamodel = gbl.DataFactory.createbranch(bus1_id, bus2_id, bus3_id, transformer_id)
+                        if transformer_datamodel is None:
+                            gbl.Msg.AddError(f"Failed to create transformer for terminals {bus1_id}, {bus2_id}, and {bus3_id}.")
+                            continue
+                        transformer_datamodel.IsTransformer = True
+                        transformer_datamodel.Is3WTransformer = True
+                        if not self.gettransformervvaluesfromnetwork(transformer_datamodel):
+                            gbl.Msg.AddError(f"Failed to retrieve values for transformer {transformer_datamodel.BranchID}.")
+                            continue
+                        gbl.DataModelManager.Branch_TAB.append(transformer_datamodel)
+        gbl.Msg.AddRawMessage(f"Total transformers added to DataModel: {len(gbl.DataModelManager.Branch_TAB) - initialbranchtablength}")
+        return bOK
+    
+    def gettransformervvaluesfromnetwork(self, transformer_datamodel):
+        """Retrieves transformer values from the PowerFactory network."""
+        bOK = True
+        if bOK:
+            transformer_obj = self.branch_dictionary.get(transformer_datamodel.BranchID)
+            if transformer_obj:
+                name = transformer_obj.GetAttribute("loc_name")
+                ON = not(bool(transformer_obj.GetAttribute("outserv")))
+
+                if name is None or ON is None:
+                    gbl.Msg.AddError(f"Failed to retrieve values for transformer {transformer_datamodel.BranchID}.")
+                    bOK = False
+                else:
+                    transformer_datamodel.Txname = name
+                    transformer_datamodel.ON = ON
+
+        return bOK
 
 #____________________LOAD METHODS________________________#
 
