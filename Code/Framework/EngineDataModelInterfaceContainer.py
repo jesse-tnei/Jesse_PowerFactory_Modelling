@@ -24,19 +24,23 @@ class EngineDataModelInterfaceContainer:
             bOK = self.getgeneratorsfromnetwork()
         if bOK:
             bOK = self.getloadsfromnetwork()
+        if bOK:
+            bOK = self.getexternalgridsfromnetwork()
         return bOK
     
     def setelementsfromdatamodelmanagertonetwork(self):
         """This method retrieves elements from the DataModelManager and passes them to the network."""
         bOK = True
         if bOK:
-            bOK = self.setbranchtonetwork()
+            bOK = self.setbranchestonetwork()
         if bOK:
             bOK = self.setbusbartonetwork()
         if bOK:
             bOK = self.setgeneratortonetwork()
         if bOK:
             bOK = self.setloadtonetwork()
+        if bOK:
+            bOK = self.setexternalgridtonetwork()
 
         return bOK
     
@@ -132,3 +136,11 @@ class EngineDataModelInterfaceContainer:
         """Sets load status to the network."""
         raise NotImplementedError("This method should be implemented in subclasses.")
     
+    
+    # EXTERNAL GRIDS
+    def getexternalgridsfromnetwork(self):
+        """Retrieves external grids from the network."""
+        raise NotImplementedError("This method should be implemented in subclasses.")
+    def setexternalgridtonetwork(self):
+        """Sets external grids to the network."""
+        raise NotImplementedError("This method should be implemented in subclasses.")
