@@ -9,6 +9,7 @@ class EngineDataModelInterfaceContainer:
     def __init__(self):
         self.m_oEngine = gbl.Engine
         self.m_oMsg = gbl.Msg
+        self.RatingstoCopy = {}
 
     
     #__________________________ENGINE DATA MODEL INTERFACE METHODS________________________
@@ -23,21 +24,32 @@ class EngineDataModelInterfaceContainer:
             bOK = self.getgeneratorsfromnetwork()
         if bOK:
             bOK = self.getloadsfromnetwork()
+        if bOK:
+            bOK = self.getexternalgridsfromnetwork()
         return bOK
     
     def setelementsfromdatamodelmanagertonetwork(self):
         """This method retrieves elements from the DataModelManager and passes them to the network."""
         bOK = True
         if bOK:
-            bOK = self.setbranchtonetwork()
+            bOK = self.setbranchestonetwork()
         if bOK:
             bOK = self.setbusbartonetwork()
         if bOK:
             bOK = self.setgeneratortonetwork()
         if bOK:
             bOK = self.setloadtonetwork()
+        if bOK:
+            bOK = self.setexternalgridtonetwork()
 
         return bOK
+    
+    def copybranchratings(self, branch):
+        for sNewRating, sOldRating in self.RatingstoCopy.items():
+            try:
+                branch.__dict__[sNewRating] = branch.__dict__[sOldRating]
+            except KeyError:
+                self.m_oMsg.AddError(f"Rating {sOldRating} not found in branch {branch.BranchID}.")
     
     
     #__________________COMPONENT-SPECIFIC METHOD TEMPLATES____________________________________#
@@ -124,3 +136,11 @@ class EngineDataModelInterfaceContainer:
         """Sets load status to the network."""
         raise NotImplementedError("This method should be implemented in subclasses.")
     
+    
+    # EXTERNAL GRIDS
+    def getexternalgridsfromnetwork(self):
+        """Retrieves external grids from the network."""
+        raise NotImplementedError("This method should be implemented in subclasses.")
+    def setexternalgridtonetwork(self):
+        """Sets external grids to the network."""
+        raise NotImplementedError("This method should be implemented in subclasses.")

@@ -27,7 +27,7 @@ class ComponentBaseTemplate:
         "Switches the data model component on."
         self.ON = True
 
-    def wwitchdatamodelcomponentstatus(self):
+    def switchdatamodelcomponentstatus(self):
         "Toggles the data model component status."
         self.ON = not self.ON
 
@@ -163,15 +163,19 @@ class Generator(ComponentBaseTemplate):
         self.GenID = str(GenID)
         self.BusIndex = 0
         self.BusName = ''
-        self.oBus = None
+        self.oBus1 = None
+        self.BusType = None
+        self.IsExternalGrid = False
 
         #gen operational attributes
         self.MW = 0.0
         self.MVar = 0.0
+        self.MVA = 0.0
         self.MWCapacity = 0.0
         self.MSG = 0.0
         self.Qmax = 99999
         self.Qmin = -99999
+        
 
         # Engine model updater based on the type of analysis
         self.BasicEngineModelUpdater = None
@@ -220,7 +224,7 @@ class Load(ComponentBaseTemplate):
         self.LoadID = str(LoadID)
         self.BusIndex = 0
         self.BusName = ''
-        self.oBus = None
+        self.oBus1 = None
         
         # load operational attributes
         self.MW = 0.0
@@ -263,4 +267,107 @@ class Load(ComponentBaseTemplate):
         if self.BasicEngineModelUpdater:
             bOK = self.BasicEngineModelUpdater.getloadstatusfromengine(self)
         return bOK
+    
+    
+class Branch(ComponentBaseTemplate):
+    def __init__(self, BusID1, BusID2, Bus3ID, BranchID):
+        ComponentBaseTemplate.__init__(self)
+        try:
+            BusID1 = int(BusID1)
+        except:
+            BusID1 = str(BusID1)
+        try:
+            BusID2 = int(BusID2)
+        except:
+            BusID2 = str(BusID2)
+        try:
+            BusID3 = int(Bus3ID)
+        except:
+            BusID3 = str(Bus3ID)
+        
+        self.BusID1 = BusID1
+        self.BusID2 = BusID2
+        self.BusID3 = BusID3
+        self.BranchID = str.strip(BranchID)
+        
+        self.TxName = ''
+        self.BusIndex1 = -1
+        self.BusIndex2 = -1
+        self.BusIndex3 = -1
+        self.Bus1Name = ''
+        self.Bus2Name = ''
+        self.Bus3Name = ''
+        self.oBus1 = None
+        self.oBus2 = None
+        self.oBus3 = None
+        
+        self.RatingA = 0.0
+        self.RatingB = 0.0
+        self.RatingC = 0.0
+        
+        self.IsSwitch = False
+        self.IsTransformer = False
+        self.IsLine = False
+        self.IsBreaker = False
+        self.IsCoupler = False
+        self.IsSeriesReactor = False
+        
+        self.Is3WindingTransformer = False
+        self.IsShunt = False
+        
+        if Bus3ID:
+            self.IsTransformer = True
+            self.Is3WindingTransformer = True
+            
+        self.IsMultiSectionLine = False
+    
+    def setdatamodelbusname(self, name, side):
+        """Sets the bus name for the branch based on the side (1, 2, or 3)."""
+        if side == 1:
+            self.Bus1Name = name
+        elif side == 2:
+            self.Bus2Name = name
+        elif side == 3:
+            self.Bus3Name = name
+            
+    def getdatamodelcomponentreadablename(self) -> str:
+        """Returns a readable name for the branch component."""
+        if self.Is3WindingTransformer:
+            return f"{self.TxName} ({self.BusID1}, {self.BusID2}, {self.BusID3})"
+        elif self.IsTransformer and not self.Is3WindingTransformer:
+            return f"{self.TxName} ({self.BusID1}, {self.BusID2})"
+        elif self.IsMultiSectionLine:
+            return f"{self.BranchID} ({self.BusID1}, {self.BusID2}, {self.BusID3})"
+        else:
+            return f"{self.BranchID} ({self.BusID1}, {self.BusID2})"
+        
+        
+    def getdatamodelcomponentfromengine(self):
+        """Retrieves the branch component from the engine."""
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.getbranchfromengine(self)
+        return bOK
+    
+    def setdatamodelcomponenttoengine(self):
+        """Sets the branch component to the engine."""
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.setbranchtoengine(self)
+        return bOK
+    
+    def setdatamodelcomponentstatustoengine(self):
+        """Updates the engine with the branch status."""
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.updatebranchstatus(self)
+        return bOK
+    
+    def getdatamodelcomponentstatusfromengine(self):
+        """Retrieves the branch status from the engine."""
+        bOK = False
+        if self.BasicEngineModelUpdater:
+            bOK = self.BasicEngineModelUpdater.getbranchstatusfromengine(self)
+        return bOK
+    
     
