@@ -56,7 +56,7 @@ class FrameworkInitialiser:
             gbl.DataModelManager = DataModelManager()
             gbl.DataModelManager.BasicEngineModelupdater = self.datamodelinterface
 
-            self.is_initialized = True
+            self.isinitialized = True
 
         except Exception as e:
             print(f"Failed to initialize framework: {e}")
