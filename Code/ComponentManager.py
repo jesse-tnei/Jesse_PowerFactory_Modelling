@@ -163,15 +163,19 @@ class Generator(ComponentBaseTemplate):
         self.GenID = str(GenID)
         self.BusIndex = 0
         self.BusName = ''
-        self.oBus = None
+        self.oBus1 = None
+        self.BusType = None
+        self.IsExternalGrid = False
 
         #gen operational attributes
         self.MW = 0.0
         self.MVar = 0.0
+        self.MVA = 0.0
         self.MWCapacity = 0.0
         self.MSG = 0.0
         self.Qmax = 99999
         self.Qmin = -99999
+        
 
         # Engine model updater based on the type of analysis
         self.BasicEngineModelUpdater = None
@@ -220,7 +224,7 @@ class Load(ComponentBaseTemplate):
         self.LoadID = str(LoadID)
         self.BusIndex = 0
         self.BusName = ''
-        self.oBus = None
+        self.oBus1 = None
         
         # load operational attributes
         self.MW = 0.0
