@@ -315,6 +315,9 @@ class Branch(ComponentBaseTemplate):
         self.Is3WindingTransformer = False
         self.IsShunt = False
         
+        #load flow attributes
+        self.loading = 0.0
+        
         if Bus3ID:
             self.IsTransformer = True
             self.Is3WindingTransformer = True
