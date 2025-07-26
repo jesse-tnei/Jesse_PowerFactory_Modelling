@@ -2,12 +2,12 @@
 # At the same time, we are using it to abstracise the EngineDataModelInterface just as we did with the Engine class 
 
 import string
-from Framework import GlobalRegistry as gbl
+from Code import GlobalEngineRegistry as gbl
 
 
 class EngineDataModelInterfaceContainer:
     def __init__(self):
-        self.m_oEngine = gbl.Engine
+        self.m_oEngine = gbl.EngineContainer
         self.m_oMsg = gbl.Msg
         self.RatingstoCopy = {}
 

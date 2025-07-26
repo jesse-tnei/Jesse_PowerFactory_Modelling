@@ -3,15 +3,11 @@
 import os, sys
 import string
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))  #add Code directory to path
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "Framework"))  #add Framework directory to path
-
-from Framework import GlobalRegistry as gbl
-from Framework import Messaging as Msg
-from DataModelManager import DataModelManager
-from ComponentManager import ComponentBaseTemplate
-from ComponentFactory import ComponentFactory
+from Code import GlobalEngineRegistry as gbl
+from Code import Messaging as Msg
+from Code.DataModel.DataModelManager import DataModelManager
+from Code.DataModel.ComponentManager import ComponentBaseTemplate
+from Code.DataModel.ComponentFactory import ComponentFactory
 
 
 class FrameworkInitialiser:
@@ -30,27 +26,28 @@ class FrameworkInitialiser:
 
         try:
             # Priority order: provided params > engine info > defaults
-            
+
             # Create messaging instance first so it can be used globally
             gbl.Msg = Msg.Messaging()
-            
+
             # Import here to avoid circular dependency since killing PowerFactory processes requires Messaging
-            from Framework.EnginePowerFactory import EnginePowerFactory  
-            
+            from Code.Framework.PowerFactory.EnginePowerFactory import EnginePowerFactory
+
             # Initialize engine
             self.engine = EnginePowerFactory(preferred_version=2023) if engine is None else engine
-            
+
             # Set global registry values
-            gbl.gbl_sAppName = getattr(self.engine, 'm_strTypeOfEngine', "PowerFactory Modelling Framework")
+            gbl.gbl_sAppName = getattr(self.engine, 'm_strTypeOfEngine',
+                                       "PowerFactory Modelling Framework")
             gbl.gbl_sVersion = getattr(self.engine, 'm_strVersion', "Not Specified")
             gbl.gbl_sAuthor = getattr(self.engine, 'm_strAuthor', "Not Specified")
-            gbl.Engine = self.engine
-            
-            from Framework.EnginePowerFactoryDataModelInterface import EnginePowerFactoryDataModelInterface as PowerFactoryDataModelInterface
+            gbl.EngineContainer = self.engine
+
+            from Code.Framework.PowerFactory.EnginePowerFactoryDataModelInterface import EnginePowerFactoryDataModelInterface as PowerFactoryDataModelInterface
             self.datamodelinterface = PowerFactoryDataModelInterface(gbl)
-            
+
             gbl.DataModelInterface = self.datamodelinterface
-            
+
             ComponentBaseTemplate.m_oEngineDataModelInterface = gbl.DataModelInterface
             gbl.DataFactory = ComponentFactory()
             gbl.DataModelManager = DataModelManager()

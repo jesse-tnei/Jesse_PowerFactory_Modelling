@@ -15,7 +15,7 @@ gbl_sAuthor = "Jesse Solomon"
 VERSION_TESTING = True
 
 
-Engine       = None   # Generic analysis engine interface
+EngineContainer       = None   # Generic analysis engine interface
 DataModelInterface    = None   # Stores data collected from the power systems network model via the engine
 DataFactory  = None   # Entry point for data model creation and management
 Msg          = None   # messaging class

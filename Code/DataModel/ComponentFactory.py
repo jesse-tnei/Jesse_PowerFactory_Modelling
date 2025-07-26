@@ -1,7 +1,7 @@
 
-from Framework import GlobalRegistry as gbl
+from Code import GlobalEngineRegistry as gbl
 #from ComponentManager import Busbar, Generator, Load, Branch
-from ComponentManager import Busbar, Generator, Load, Branch
+from Code.DataModel.ComponentManager import Busbar, Generator, Load, Branch
 
 class ComponentFactory():
     def __init__(self):

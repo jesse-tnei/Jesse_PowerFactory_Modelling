@@ -1,12 +1,17 @@
-from FrameworkInitialiser import FrameworkInitialiser
-from Framework import GlobalRegistry as gbl
+import os, sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "Framework"))  #add Framework directory to path
+from Code import FrameworkInitialiser as f_init
+from Code import GlobalEngineRegistry as gbl
 
 if __name__ == "__main__":
-    fw = FrameworkInitialiser()
+    fw = f_init.FrameworkInitialiser()
     fw.initialize()
     gbl.Msg.DisplayWelcomeMessage()
-    gbl.Engine.activatepowerfactorynetwork(r"Personal_Learning\Load Flow")
-    gbl.Engine.activatepowerfactorystudycase("Study Case")
+    gbl.EngineContainer.activatepowerfactorynetwork(r"Personal_Learning\Load Flow")
+    gbl.EngineContainer.activatepowerfactorystudycase("Study Case")
     gbl.DataModelInterface.passelementsfromnetworktodatamodelmanager()
 
     
