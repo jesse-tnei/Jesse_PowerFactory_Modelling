@@ -42,7 +42,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         if terminals:
             gbl.Msg.AddRawMessage(f"Total busbars retrieved successfully from the network: {len(terminals)}")
             for terminal in terminals:
-                terminal_id = self._standardize_terminal_id(terminal)
+                terminal_id = self.standardize_terminal_id(terminal)
                 self.terminal_dictionary[terminal_id] = terminal
             
                 busbar = gbl.DataFactory.createbusbar(terminal_id)
@@ -58,7 +58,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         gbl.Msg.AddRawMessage(f"Total busbars added to DataModel: {len(self.terminal_dictionary)}")  
         return bOK
     
-    def _standardize_terminal_id(self, terminal: object) -> str:
+    def standardize_terminal_id(self, terminal: object) -> str:
         """Standardizes the bus ID to a consistent format."""
         current = terminal
         while current and current.GetClassName() != "ElmTerm":
@@ -115,8 +115,8 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                 terminal1 = line.GetAttribute("bus1")
                 terminal2 = line.GetAttribute("bus2")
                 if terminal1 and terminal2:
-                    bus1_id = self._standardize_terminal_id(terminal1)
-                    bus2_id = self._standardize_terminal_id(terminal2)
+                    bus1_id = self.standardize_terminal_id(terminal1)
+                    bus2_id = self.standardize_terminal_id(terminal2)
                     if bus1_id and bus2_id and bus1_id in self.terminal_dictionary and bus2_id in self.terminal_dictionary:
                         line_datamodel = gbl.DataFactory.createbranch(bus1_id, bus2_id, 0, line_id)
                         if line_datamodel is None:
@@ -161,8 +161,8 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                 terminal2 = transformer.GetAttribute("buslv")
                 terminal3 = transformer.GetAttribute("busmv") if hasattr(transformer, 'busmv') else None
                 if terminal1 and terminal2 and not terminal3:
-                    bus1_id = self._standardize_terminal_id(terminal1)
-                    bus2_id = self._standardize_terminal_id(terminal2)
+                    bus1_id = self.standardize_terminal_id(terminal1)
+                    bus2_id = self.standardize_terminal_id(terminal2)
                     if bus1_id and bus2_id and bus1_id in self.terminal_dictionary and bus2_id in self.terminal_dictionary:
                         transformer_datamodel = gbl.DataFactory.createbranch(bus1_id, bus2_id, 0, transformer_id)
                         if transformer_datamodel is None:
@@ -175,9 +175,9 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                         gbl.DataModelManager.Branch_TAB.append(transformer_datamodel)
                         
                 if terminal1 and terminal2 and terminal3:
-                    bus1_id = self._standardize_terminal_id(terminal1)
-                    bus2_id = self._standardize_terminal_id(terminal2)
-                    bus3_id = self._standardize_terminal_id(terminal3)
+                    bus1_id = self.standardize_terminal_id(terminal1)
+                    bus2_id = self.standardize_terminal_id(terminal2)
+                    bus3_id = self.standardize_terminal_id(terminal3)
                     if bus1_id and bus2_id and bus3_id and bus1_id in self.terminal_dictionary and bus2_id in self.terminal_dictionary and bus3_id in self.terminal_dictionary:
                         transformer_datamodel = gbl.DataFactory.createbranch(bus1_id, bus2_id, bus3_id, transformer_id)
                         if transformer_datamodel is None:
@@ -229,7 +229,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                 self.load_dictionary[load_id] = load
                 terminal = load.GetAttribute("bus1")
                 if terminal:
-                    bus_id = self._standardize_terminal_id(terminal)
+                    bus_id = self.standardize_terminal_id(terminal)
                     if bus_id and bus_id in self.terminal_dictionary:
                         load_item = gbl.DataFactory.createload(bus_id, load_id)
                         if load_item is None:
@@ -278,7 +278,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                 self.generator_dictionary[gen_id] = generator
                 terminal = generator.GetAttribute("bus1")
                 if terminal:
-                    bus_id = self._standardize_terminal_id(terminal)
+                    bus_id = self.standardize_terminal_id(terminal)
                     if bus_id and bus_id in self.terminal_dictionary:
                         gen_item = gbl.DataFactory.creategenerator(bus_id, gen_id)
                         if gen_item is None:
@@ -333,7 +333,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                 ext_grid_id = ext_grid.GetAttribute("loc_name")
                 terminal = ext_grid.GetAttribute("bus1")
                 if terminal:
-                    bus_id = self._standardize_terminal_id(terminal)
+                    bus_id = self.standardize_terminal_id(terminal)
                     if bus_id and bus_id in self.terminal_dictionary:
                         self.generator_dictionary[ext_grid_id] = ext_grid
                         ext_grid_item = gbl.DataFactory.creategenerator(bus_id, ext_grid_id)
