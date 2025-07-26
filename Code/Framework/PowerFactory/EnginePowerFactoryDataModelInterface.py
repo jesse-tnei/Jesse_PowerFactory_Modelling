@@ -3,7 +3,7 @@
 from Code import GlobalEngineRegistry as gbl
 from Code.Framework.BaseTemplates.EngineDataModelInterfaceContainer import EngineDataModelInterfaceContainer
 class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
-    def __init__(self, gbl):
+    def __init__(self):
         EngineDataModelInterfaceContainer.__init__(self)
         self.terminal_dictionary = {}  # Dictionary to hold terminal IDs and their corresponding bus IDs
         self.load_dictionary = {}  # Dictionary to hold load IDs and their corresponding bus IDs
