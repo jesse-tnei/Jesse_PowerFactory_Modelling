@@ -15,8 +15,7 @@ class FrameworkInitialiser:
 
     def __init__(self):
         self.isinitialized = False
-        self.engine = None  # Future: Will hold Engine instance
-        self.datamodelinterface = None  # Future: Will hold DataModelInterface instance
+        self.engine = None
 
     def initialize(self, engine=None):
         """Initialize all framework components"""
@@ -43,15 +42,20 @@ class FrameworkInitialiser:
             gbl.gbl_sAuthor = getattr(self.engine, 'm_strAuthor', "Not Specified")
             gbl.EngineContainer = self.engine
 
+            # Initialize DataModelInterface
             from Code.Framework.PowerFactory.EnginePowerFactoryDataModelInterface import EnginePowerFactoryDataModelInterface as PowerFactoryDataModelInterface
-            self.datamodelinterface = PowerFactoryDataModelInterface(gbl)
 
-            gbl.DataModelInterface = self.datamodelinterface
+            gbl.DataModelInterfaceContainer = PowerFactoryDataModelInterface()
 
-            ComponentBaseTemplate.m_oEngineDataModelInterface = gbl.DataModelInterface
+            # Initialize DataFactory and DataModelManager
+            ComponentBaseTemplate.m_oEngineDataModelInterface = gbl.DataModelInterfaceContainer
             gbl.DataFactory = ComponentFactory()
             gbl.DataModelManager = DataModelManager()
-            gbl.DataModelManager.BasicEngineModelupdater = self.datamodelinterface
+            gbl.DataModelManager.BasicEngineModelupdater = gbl.DataModelInterfaceContainer
+
+            # Initialize Load Flow Container
+            from Code.Framework.PowerFactory.EnginePowerFactoryLoadFlow import EnginePowerFactoryLoadFlow
+            gbl.EngineLoadFlowContainer = EnginePowerFactoryLoadFlow()
 
             self.isinitialized = True
 
