@@ -16,7 +16,8 @@ VERSION_TESTING = True
 
 
 EngineContainer       = None   # Generic analysis engine interface
-DataModelInterface    = None   # Stores data collected from the power systems network model via the engine
+EngineLoadFlowContainer = None   # Load flow analysis engine interface
+DataModelInterfaceContainer    = None   # Stores data collected from the power systems network model via the engine
 DataFactory  = None   # Entry point for data model creation and management
 Msg          = None   # messaging class
 
