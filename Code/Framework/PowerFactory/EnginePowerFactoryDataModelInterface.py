@@ -1,7 +1,7 @@
 # This module retrives data from PowerFactory engine, creates a data model, and manages the transfer of data between the network and the data model.
 
-from Framework import GlobalRegistry as gbl
-from Framework.EngineDataModelInterfaceContainer import EngineDataModelInterfaceContainer
+from Code import GlobalEngineRegistry as gbl
+from Code.Framework.BaseTemplates.EngineDataModelInterfaceContainer import EngineDataModelInterfaceContainer
 class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
     def __init__(self, gbl):
         EngineDataModelInterfaceContainer.__init__(self)
@@ -38,7 +38,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         """Retrieves busbars from the PowerFactory network."""
         bOK = True
         if bOK:
-            terminals = gbl.Engine.m_pFApp.GetCalcRelevantObjects("ElmTerm")   
+            terminals = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("ElmTerm")   
         if terminals:
             gbl.Msg.AddRawMessage(f"Total busbars retrieved successfully from the network: {len(terminals)}")
             for terminal in terminals:
@@ -107,7 +107,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         """Retrieves lines from the PowerFactory network."""
         bOK = True
         if bOK:
-            lines = gbl.Engine.m_pFApp.GetCalcRelevantObjects("ElmLne")
+            lines = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("ElmLne")
             gbl.Msg.AddRawMessage(f"Total lines retrieved successfully from the network: {len(lines)}")
             for line in lines:
                 line_id = line.GetAttribute("loc_name")
@@ -152,7 +152,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         bOK = True
         initialbranchtablength = len(gbl.DataModelManager.Branch_TAB)
         if bOK:
-            transformers = gbl.Engine.m_pFApp.GetCalcRelevantObjects("*.ElmTr2,")
+            transformers = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("*.ElmTr2,")
             gbl.Msg.AddRawMessage(f"Total transformers retrieved successfully from the network: {len(transformers)}")
             for transformer in transformers:
                 transformer_id = transformer.GetAttribute("loc_name")
@@ -222,7 +222,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         """Retrieves loads from the PowerFactory network."""
         bOK = True
         if bOK:
-            loads = gbl.Engine.m_pFApp.GetCalcRelevantObjects("ElmLod")
+            loads = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("ElmLod")
             gbl.Msg.AddRawMessage(f"Total loads retrieved successfully from the network: {len(loads)}")
             for load in loads:
                 load_id = load.GetAttribute("loc_name")
@@ -271,7 +271,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         """Retrieves generators from the PowerFactory network."""
         bOK = True
         if bOK:
-            generators = gbl.Engine.m_pFApp.GetCalcRelevantObjects("*.ElmGen, *.ElmGenstat, *.ElmSym")
+            generators = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("*.ElmGen, *.ElmGenstat, *.ElmSym")
             gbl.Msg.AddRawMessage(f"Total generators retrieved successfully from the network: {len(generators)}")
             for generator in generators:
                 gen_id = generator.GetAttribute("loc_name")
@@ -327,7 +327,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         bOK = True
         initialgentablength = len(gbl.DataModelManager.Gen_TAB)
         if bOK:
-            external_grids = gbl.Engine.m_pFApp.GetCalcRelevantObjects("ElmXnet")
+            external_grids = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("ElmXnet")
             gbl.Msg.AddRawMessage(f"Total external grids retrieved successfully from the network: {len(external_grids)}")
             for ext_grid in external_grids:
                 ext_grid_id = ext_grid.GetAttribute("loc_name")

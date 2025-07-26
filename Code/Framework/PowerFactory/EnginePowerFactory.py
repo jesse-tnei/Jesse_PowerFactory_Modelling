@@ -6,8 +6,8 @@ import psutil
 import wmi
 import pythoncom
 
-from Framework import GlobalRegistry as gbl
-from Framework.Engine import EngineContainer as EngineContainer
+from Code import GlobalEngineRegistry as gbl
+from Code.Framework.BaseTemplates.EngineContainer import EngineContainer as EngineContainer
 
 class EnginePowerFactory(EngineContainer):
     """Engine class for PowerFactory"""

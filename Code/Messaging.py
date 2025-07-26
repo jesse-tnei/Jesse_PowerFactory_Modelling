@@ -1,7 +1,7 @@
 # Messaging.py
 # This file contains the Messaging class, which is used to handle messaging within the application.
 
-from Framework import GlobalRegistry as gbl
+from Code import GlobalEngineRegistry as gbl
 import datetime
 
 

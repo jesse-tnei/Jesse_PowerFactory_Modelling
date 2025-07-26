@@ -3,7 +3,7 @@
 # Depending on their choice, this will be the interface to that engine.
 
 import string
-from Framework import GlobalRegistry as gbl
+from Code import GlobalEngineRegistry as gbl
 #from FrameworkInitialiser import FrameworkInitialiser
 
 
