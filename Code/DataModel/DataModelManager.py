@@ -97,24 +97,24 @@ class DataModelManager:
             if oBus1:
                 for nBranchIdx in oBus1.Branches:
                     branch = self.Branch_TAB[nBranchIdx]
-                    if branch.getattribute("BranchID") == BranchID:
-                        if branch.getattribute("Bus1ID") == Bus1ID and \
-                           branch.getattribute("Bus2ID") == Bus2ID and \
-                           branch.getattribute("Bus3ID") == Bus3ID:
+                    if branch.__getattribute__("BranchID") == BranchID:
+                        if branch.__getattribute__("BusID1") == Bus1ID and \
+                           branch.__getattribute__("BusID2") == Bus2ID and \
+                           branch.__getattribute__("BusID3") == Bus3ID:
                             oBranch = branch
                             nIndex = nBranchIdx
                             break
                         if bAllowTransposedSearch:
-                            if branch.getattribute("Bus1ID") == Bus2ID and \
-                               branch.getattribute("Bus2ID") == Bus1ID and \
-                               branch.getattribute("Bus3ID") == Bus3ID:
+                            if branch.__getattribute__("BusID1") == Bus2ID and \
+                               branch.__getattribute__("BusID2") == Bus1ID and \
+                               branch.__getattribute__("BusID3") == Bus3ID:
                                 oBranch = branch
                                 nIndex = nBranchIdx
                                 break
                             else:
-                                if branch.getattribute("Bus1ID") == Bus3ID and \
-                                   branch.getattribute("Bus2ID") == Bus2ID and \
-                                   branch.getattribute("Bus3ID") == Bus1ID:
+                                if branch.__getattribute__("BusID1") == Bus3ID and \
+                                   branch.__getattribute__("BusID2") == Bus2ID and \
+                                   branch.__getattribute__("BusID3") == Bus1ID:
                                     oBranch = branch
                                     nIndex = nBranchIdx
                                     break
@@ -122,24 +122,24 @@ class DataModelManager:
         # if not found in busbar map, do linear search
         if oBranch is None:
             for nBranchIdx, branch in enumerate(self.Branch_TAB):
-                if branch.getattribute("BranchID") == BranchID:
-                    if branch.getattribute("Bus1ID") == Bus1ID and \
-                       branch.getattribute("Bus2ID") == Bus2ID and \
-                       branch.getattribute("Bus3ID") == Bus3ID:
+                if branch.__getattribute__("BranchID") == BranchID:
+                    if branch.__getattribute__("BusID1") == Bus1ID and \
+                       branch.__getattribute__("BusID2") == Bus2ID and \
+                       branch.__getattribute__("BusID3") == Bus3ID:
                         oBranch = branch
                         nIndex = nBranchIdx
                         break
                     if bAllowTransposedSearch:
-                        if branch.getattribute("Bus1ID") == Bus2ID and \
-                           branch.getattribute("Bus2ID") == Bus1ID and \
-                           branch.getattribute("Bus3ID") == Bus3ID:
+                        if branch.__getattribute__("BusID1") == Bus2ID and \
+                           branch.__getattribute__("BusID2") == Bus1ID and \
+                           branch.__getattribute__("BusID3") == Bus3ID:
                             oBranch = branch
                             nIndex = nBranchIdx
                             break
                         else:
-                            if branch.getattribute("Bus1ID") == Bus3ID and \
-                               branch.getattribute("Bus2ID") == Bus2ID and \
-                               branch.getattribute("Bus3ID") == Bus1ID:
+                            if branch.__getattribute__("BusID1") == Bus3ID and \
+                               branch.__getattribute__("BusID2") == Bus2ID and \
+                               branch.__getattribute__("BusID3") == Bus1ID:
                                 oBranch = branch
                                 nIndex = nBranchIdx
                                 break
