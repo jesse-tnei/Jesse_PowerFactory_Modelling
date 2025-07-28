@@ -56,9 +56,14 @@ class FrameworkInitialiser:
 
             # Initialize StudySettings
             gbl.StudySettingsContainer = StudySettings.StudySettings()
+            
             # Initialize Load Flow Container
             from Code.Framework.PowerFactory.EnginePowerFactoryLoadFlow import EnginePowerFactoryLoadFlow
             gbl.EngineLoadFlowContainer = EnginePowerFactoryLoadFlow()
+            
+            # Initialize Short Circuit Container
+            from Code.Framework.PowerFactory.EnginePowerFactoryShortCircuit import EnginePowerFactoryShortCircuit
+            gbl.EngineShortCircuitContainer = EnginePowerFactoryShortCircuit()
             
             
 
