@@ -87,6 +87,21 @@ class Busbar(ComponentBaseTemplate):
         self.VangDeg = 0.0
         self.VangRad = 0.0
         self.LoadFlowResults = None
+        
+        #short circuit attributes
+        self.initialshortcircuitcurrent = 0.0
+        self.initialshortcircuitmva = 0.0
+        
+        self.peakshortcircuitcurrent = 0.0
+        
+        self.breakingshortcircuitcurrent = 0.0
+        self.breakingshortcircuitmva = 0.0
+        
+        self.steadystateshortcircuitcurrent = 0.0
+        self.steadystateshortcircuitmva = 0.0
+        
+        self.realshortcircuitimpedance = 0.0
+        self.imaginaryshortcircuitimpedance = 0.0
 
         #Harmonic attributes
         self.THD = 0.0

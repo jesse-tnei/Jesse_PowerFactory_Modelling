@@ -25,3 +25,8 @@ if __name__ == "__main__":
         gbl.EngineLoadFlowContainer.getandupdateloadflowgeneratorresults()
         gbl.EngineLoadFlowContainer.getandupdateloadsloadflowresults()
         #gbl.EngineLoadFlowContainer.getloadflowresultsdiagramfromnetwork()
+        
+    if gbl.StudySettingsContainer.DoShortCircuit:
+        gbl.EngineShortCircuitContainer.runshortcircuitanalysisforallbusbars()
+        gbl.EngineShortCircuitContainer.getandupdateshortcircuitresults()
+        print("Short circuit analysis completed.")
