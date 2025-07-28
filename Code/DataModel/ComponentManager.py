@@ -86,6 +86,7 @@ class Busbar(ComponentBaseTemplate):
         self.VMagkV = 0.0
         self.VangDeg = 0.0
         self.VangRad = 0.0
+        self.LoadFlowResults = None
 
         #Harmonic attributes
         self.THD = 0.0
@@ -176,6 +177,16 @@ class Generator(ComponentBaseTemplate):
         self.Qmax = 99999
         self.Qmin = -99999
         
+        #load flow attributes
+        self.MWLoadFlow = 0.0
+        self.MVarLoadFlow = 0.0
+        self.MVALoadFlow = 0.0
+        self.RatedMVA = 0.0
+        self.LoadFlowResults = None
+        self.VMagPu = 1.0
+        self.powerFactor = 1.0
+        self.parallelmachines = 1
+        
 
         # Engine model updater based on the type of analysis
         self.BasicEngineModelUpdater = None
@@ -234,6 +245,18 @@ class Load(ComponentBaseTemplate):
         self.Qmax = 99999
         self.Qmin = -99999
         
+        
+        #load flow attributes
+        self.MWLoadFlow = 0.0
+        self.MVarLoadFlow = 0.0
+        self.MVALoadFlow = 0.0
+        self.RatedMVA = 0.0
+        self.LoadFlowResults = None
+        self.VMagPu = 1.0
+        self.powerFactor = 1.0
+        self.parallelmachines = 1
+        
+        
         # Engine model updater based on the type of analysis
         self.BasicEngineModelUpdater = None
         self.LoadFlowEngineModelUpdater = None
@@ -290,7 +313,7 @@ class Branch(ComponentBaseTemplate):
         self.BusID3 = BusID3
         self.BranchID = str.strip(BranchID)
         
-        self.TxName = ''
+        self.Txname = ''
         self.BusIndex1 = -1
         self.BusIndex2 = -1
         self.BusIndex3 = -1
@@ -314,6 +337,10 @@ class Branch(ComponentBaseTemplate):
         
         self.Is3WindingTransformer = False
         self.IsShunt = False
+        
+        #load flow attributes
+        self.loading = 0.0
+        self.LoadFlowResults = None
         
         if Bus3ID:
             self.IsTransformer = True
