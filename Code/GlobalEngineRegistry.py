@@ -17,6 +17,7 @@ VERSION_TESTING = True
 
 EngineContainer       = None   # Generic analysis engine interface
 EngineLoadFlowContainer = None   # Load flow analysis engine interface
+EngineShortCircuitContainer = None   # Short circuit analysis engine interface
 DataModelInterfaceContainer    = None   # Stores data collected from the power systems network model via the engine
 StudySettingsContainer = None   # Stores study settings for the network model
 DataFactory  = None   # Entry point for data model creation and management
