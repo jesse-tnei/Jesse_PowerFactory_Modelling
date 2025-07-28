@@ -185,14 +185,14 @@ class DataModelManager:
             if oBus is not None and hasattr(oBus, 'Generators'):
                 for nGenIdx in oBus.Generators:
                     gen = self.Gen_TAB[nGenIdx]
-                    strGenID = str(gen.getattribute("GenID")).strip()
+                    strGenID = str(gen.__getattribute__("GenID")).strip()
                     if strGenID == GenID:
                         return gen, nGenIdx
         else:
             # Fall back to linear search
             for nGenIdx, gen in enumerate(self.Gen_TAB):
-                gen_bus_id = gen.getattribute("BusID")
-                strGenID = str(gen.getattribute("GenID")).strip()
+                gen_bus_id = gen.__getattribute__("BusID")
+                strGenID = str(gen.__getattribute__("GenID")).strip()
                 if gen_bus_id == BusID and strGenID == GenID:
                     return gen, nGenIdx
 
@@ -234,14 +234,14 @@ class DataModelManager:
             if oBus is not None and hasattr(oBus, 'Loads'):
                 for nLoadIdx in oBus.Loads:
                     load = self.Load_TAB[nLoadIdx]
-                    strLoadID = str(load.getattribute("LoadID")).strip()
+                    strLoadID = str(load.__getattribute__("LoadID")).strip()
                     if strLoadID == LoadID:
                         return load, nLoadIdx
         else:
             # Fall back to linear search
             for nLoadIdx, load in enumerate(self.Load_TAB):
-                load_bus_id = load.getattribute("BusID")
-                strLoadID = str(load.getattribute("LoadID")).strip()
+                load_bus_id = load.__getattribute__("BusID")
+                strLoadID = str(load.__getattribute__("LoadID")).strip()
                 if load_bus_id == BusID and strLoadID == LoadID:
                     return load, nLoadIdx
 
