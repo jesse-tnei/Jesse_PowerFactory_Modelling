@@ -5,6 +5,7 @@ import string
 
 from Code import GlobalEngineRegistry as gbl
 from Code import Messaging as Msg
+from Code import StudySettings as StudySettings
 from Code.DataModel.DataModelManager import DataModelManager
 from Code.DataModel.ComponentManager import ComponentBaseTemplate
 from Code.DataModel.ComponentFactory import ComponentFactory
@@ -53,9 +54,13 @@ class FrameworkInitialiser:
             gbl.DataModelManager = DataModelManager()
             gbl.DataModelManager.BasicEngineModelupdater = gbl.DataModelInterfaceContainer
 
+            # Initialize StudySettings
+            gbl.StudySettingsContainer = StudySettings.StudySettings()
             # Initialize Load Flow Container
             from Code.Framework.PowerFactory.EnginePowerFactoryLoadFlow import EnginePowerFactoryLoadFlow
             gbl.EngineLoadFlowContainer = EnginePowerFactoryLoadFlow()
+            
+            
 
             self.isinitialized = True
 
