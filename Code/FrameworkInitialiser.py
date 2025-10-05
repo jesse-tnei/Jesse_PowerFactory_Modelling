@@ -56,11 +56,23 @@ class FrameworkInitialiser:
 
             # Initialize StudySettings
             gbl.StudySettingsContainer = StudySettings.StudySettings()
-            
+            # Initialize Web Interface (if available)
+            try:
+                from Code.WebInterface.FlaskApp import start_web_server
+                gbl.WebContainer = start_web_server
+                gbl.Msg.AddInfo("Web interface initialized successfully")
+            except ImportError as e:
+                gbl.Msg.AddWarning(f"Web interface not available: {e}")
+                gbl.WebContainer = None
+            # Start web interface if enabled
+            if gbl.StudySettingsContainer.EnableWebInterface and gbl.WebContainer:
+                import threading
+                web_thread = threading.Thread(target=gbl.WebContainer, daemon=True)
+                web_thread.start()
+                gbl.Msg.AddInfo(f"Web interface started at http://{gbl.StudySettingsContainer.WebInterfaceHost}:{gbl.StudySettingsContainer.WebInterfacePort}")
             # Initialize Load Flow Container
             from Code.Framework.PowerFactory.EnginePowerFactoryLoadFlow import EnginePowerFactoryLoadFlow
             gbl.EngineLoadFlowContainer = EnginePowerFactoryLoadFlow()
-            
             # Initialize Short Circuit Container
             from Code.Framework.PowerFactory.EnginePowerFactoryShortCircuit import EnginePowerFactoryShortCircuit
             gbl.EngineShortCircuitContainer = EnginePowerFactoryShortCircuit()
