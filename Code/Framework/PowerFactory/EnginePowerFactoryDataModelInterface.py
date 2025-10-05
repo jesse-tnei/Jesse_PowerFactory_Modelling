@@ -87,12 +87,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                 busbar.kV = VMagkV
                 busbar.Disconnected = not ON             
         return bOK
-    
-    
-    
-    
-    
-        
 #____________________BRANCH METHODS________________________#
     def getbranchesfromnetwork(self):
             """Retrieves branches from the PowerFactory network."""
