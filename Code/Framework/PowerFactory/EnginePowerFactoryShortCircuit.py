@@ -6,6 +6,7 @@ class EnginePowerFactoryShortCircuit(EngineShortCircuitContainer):
         super().__init__()
         self.powerfactoryshortcircuitobject = gbl.EngineContainer.m_pFApp.GetFromStudyCase("ComShc")
         self.busbarshortcircuitresultsdata = []
+        self.gen_short_circuit_data = []
 
     def runshortcircuitanalysisforallbusbars(self):
         """This method runs the short circuit analysis."""
@@ -94,7 +95,9 @@ class EnginePowerFactoryShortCircuit(EngineShortCircuitContainer):
         return self.busbarshortcircuitresultsdata
     
     def setbusbarshortcircuitresultsdatatab(self):
-        """This method sets the busbar short circuit results data."""
+        """This method sets the busbar short circuit results data. The results are the worst case fault results for a given busbar regardless of the location of the fault.
+        
+        For analysis of faults at specific locations, use the method runshortcircuitanalysisforspecificbusbar(busbar) and then retrieve the results for that busbar."""
         if not self.busbarshortcircuitresultsdata:
             gbl.Msg.add_warning("No busbar short circuit results data available to update the tab.")
             return False
@@ -113,3 +116,34 @@ class EnginePowerFactoryShortCircuit(EngineShortCircuitContainer):
             busbar.imaginaryshortcircuitimpedance = bus["imaginaryshortcircuitimpedance"]
             busbar.shortcircuitresults = True
         return True
+    
+    def getgenshortcircuitcontribution(self):
+        """This method retrieves the generator short circuit contribution."""
+        gens = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("*.ElmGen, *.ElmGenstat, *.ElmSym")
+        gbl.Msg.add_information(f"Found {len(gens)} generators for short circuit contribution analysis.")
+        gen_short_circuit_data = []
+        for gen in gens:
+            gen_id = gen.GetAttribute("loc_name")
+            terminal = gen.GetAttribute("bus1")
+            if terminal:
+                bus_id = gbl.DataModelInterfaceContainer.standardize_terminal_id(terminal)
+            for gen_obj in gbl.DataModelManager.Gen_TAB:
+                if gen_obj.GenID == gen_id and gen_obj.BusID == bus_id:
+                    skss_value = gen.GetAttribute("m:Skss:bus1")
+                    ikss_value = gen.GetAttribute("m:Ikss:bus1")
+                    ikss_angle = gen.GetAttribute("m:phii:bus1")
+                    ip_value = gen.GetAttribute("m:Ip:bus1")
+                    gen_obj.shortcircuit_skss = skss_value
+                    gen_obj.shortcircuit_ikss = ikss_value
+                    gen_obj.shortcircuit_ikss_angle = ikss_angle
+                    gen_obj.shortcircuit_ip = ip_value
+                    self.gen_short_circuit_data.append({
+                        "GenID": gen_id,
+                        "BusID": bus_id,
+                        "Skss": skss_value,
+                        "Ikss": ikss_value,
+                        "Ikss_Angle": ikss_angle,
+                        "Ip": ip_value
+                    })
+                    break
+        return self.gen_short_circuit_data
