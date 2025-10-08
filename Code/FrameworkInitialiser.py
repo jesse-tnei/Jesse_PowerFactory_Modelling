@@ -1,16 +1,9 @@
 # Connector module that brings together all the initialisation code for the framework.
-
 import os, sys
 import string
+import threading
 
 from Code import GlobalEngineRegistry as gbl
-from Code import Messaging as Msg
-from Code import StudySettings as StudySettings
-from Code.DataModel.DataModelManager import DataModelManager
-from Code.DataModel.ComponentManager import ComponentBaseTemplate
-from Code.DataModel.ComponentFactory import ComponentFactory
-
-
 class FrameworkInitialiser:
     """Framework initialization and management class"""
 
@@ -18,72 +11,150 @@ class FrameworkInitialiser:
         self.isinitialized = False
         self.engine = None
 
-    def initialize(self, engine=None):
+    def initialize(self, engine=None, bOK = False):
         """Initialize all framework components"""
         if self.isinitialized:
             print("Framework already initialized!")
             return
-
         try:
             # Priority order: provided params > engine info > defaults
 
             # Create messaging instance first so it can be used globally
+            bOK = self.initialise_messaging()
+            if bOK:
+                bOK = self.initialisestudyengine(engine)
+            if bOK:
+                bOK = self.initialisedatamodelinterface()
+            if bOK:
+                bOK = self.configurecomponenttemplates()
+            if bOK:
+                bOK = self.initialisedatafactory()
+            if bOK:
+                bOK = self.initialisedatamodelmanager()
+            if bOK:
+                bOK = self.initialisestudysettings()
+            if bOK:
+                bOK = self.initialisewebinterface()
+            if bOK:
+                bOK = self.startwebinterface()
+            if bOK:
+                self.isinitialized = True
+        except Exception as e:
+            print(f"Failed to initialize framework: {e}")
+            raise
+    def initialise_messaging(self):
+        """Initialize messaging"""
+        try:
+            from Code import Messaging as Msg
             gbl.Msg = Msg.Messaging()
-
-            # Import here to avoid circular dependency since killing PowerFactory processes requires Messaging
-            from Code.Framework.PowerFactory.EnginePowerFactory import EnginePowerFactory
-
-            # Initialize engine
-            self.engine = EnginePowerFactory(preferred_version=2023) if engine is None else engine
-
-            # Set global registry values
-            gbl.gbl_sAppName = getattr(self.engine, 'm_strTypeOfEngine',
-                                       "PowerFactory Modelling Framework")
-            gbl.gbl_sVersion = getattr(self.engine, 'm_strVersion', "Not Specified")
-            gbl.gbl_sAuthor = getattr(self.engine, 'm_strAuthor', "Not Specified")
-            gbl.EngineContainer = self.engine
-
-            # Initialize DataModelInterface
-            from Code.Framework.PowerFactory.EnginePowerFactoryDataModelInterface import EnginePowerFactoryDataModelInterface as PowerFactoryDataModelInterface
-
-            gbl.DataModelInterfaceContainer = PowerFactoryDataModelInterface()
-
-            # Initialize DataFactory and DataModelManager
-            ComponentBaseTemplate.m_oEngineDataModelInterface = gbl.DataModelInterfaceContainer
-            gbl.DataFactory = ComponentFactory()
-            gbl.DataModelManager = DataModelManager()
-            gbl.DataModelManager.BasicEngineModelupdater = gbl.DataModelInterfaceContainer
-
-            # Initialize StudySettings
-            gbl.StudySettingsContainer = StudySettings.StudySettings()
-            # Initialize Web Interface (if available)
-            try:
-                from Code.WebInterface.FlaskApp import start_web_server
-                gbl.WebContainer = start_web_server
-                gbl.Msg.AddInfo("Web interface initialized successfully")
-            except ImportError as e:
-                gbl.Msg.AddWarning(f"Web interface not available: {e}")
-                gbl.WebContainer = None
-            # Start web interface if enabled
+            return True
+        except Exception as e:
+            print(f"Failed to initialize messaging: {e}")
+            return False
+    def initialisewebinterface(self):
+        """Initialize web interface"""
+        try:
+            from Code.WebInterface.FlaskApp import start_web_server
+            gbl.WebContainer = start_web_server
+        except ImportError as e:
+            gbl.Msg.AddError(f"Web interface not available: {e}")
+            return False
+    def startwebinterface(self):
+        """Start web interface"""
+        try:
             if gbl.StudySettingsContainer.EnableWebInterface and gbl.WebContainer:
-                import threading
-                web_thread = threading.Thread(target=gbl.WebContainer, daemon=True)
-                web_thread.start()
-                gbl.Msg.AddInfo(f"Web interface started at http://{gbl.StudySettingsContainer.WebInterfaceHost}:{gbl.StudySettingsContainer.WebInterfacePort}")
+            web_thread = threading.Thread(target=gbl.WebContainer, daemon=True)
+            web_thread.start()
+            gbl.Msg.AddInfo(
+                f"Web interface started at http://{gbl.StudySettingsContainer.WebInterfaceHost}:{gbl.StudySettingsContainer.WebInterfacePort}"
+            )
+            return True
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to start web interface: {e}")
+            return False
+    def initialisestudyengine(self, engine=None, engine_type="powerfactory", bOK = False, **kwargs):
+        """Initialize study engine. Defaults to PowerFactory if not defined"""
+        try:
+            if engine is None:
+                if engine_type == "powerfactory":
+                    from Code.Framework.PowerFactory.EnginePowerFactory import EnginePowerFactory
+                    engine = EnginePowerFactory(preferred_version=2023)
+                elif engine_type == "psse":
+                    gbl.Msg.AddError("PSS/E engine not yet implemented")
+                    return False
+                else:
+                    gbl.Msg.AddError(f"Unsupported engine type: {engine_type}")
+                    return False
+            self.engine = engine
+            gbl.gbl_sAppName = getattr(engine, "m_strTypeOfEngine", "PowerFactory")
+            gbl.gbl_sVersion = getattr(engine, "m_strVersion", "0.0.0.xxx")
+            gbl.gbl_sDescription = getattr(engine, "m_strDescription", "")
+            gbl.gbl_sFrameworkVersion = gbl.gbl_sVersion
+            gbl.gbl_sAuthor = getattr(engine, "m_strAuthor", "Jesse Solomon")
+            gbl.EngineContainer = engine
+            
+            #Initialise engine modules
+            if not self._initialise_engine_modules(engine_type):
+                return False
+            return True
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to initialize study engine: {e}")
+            return False
+    def initialisedatamodelinterface(self):
+        """Initialize data model interface"""
+        try:
+            from Code.Framework.PowerFactory.EnginePowerFactoryDataModelInterface import EnginePowerFactoryDataModelInterface as PowerFactoryDataModelInterface
+            gbl.DataModelInterfaceContainer = PowerFactoryDataModelInterface()
+            return True
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to initialize data model interface: {e}")
+            return False
+    def configurecomponenttemplates(self):
+        try:
+            from Code.DataModel.ComponentManager import ComponentBaseTemplate
+            ComponentBaseTemplate.m_oEngineDataModelInterface = gbl.DataModelInterfaceContainer
+            return True
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to initialize component templates: {e}")
+            return False
+    def initialisedatafactory(self):
+        """Initialize data factory"""
+        try:
+            from Code.DataModel.ComponentFactory import ComponentFactory
+            gbl.DataFactory = ComponentFactory()
+            return True
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to initialize data factory: {e}")
+            return False
+    def _initialise_engine_modules(self, engine_type):
+        if engine_type == "powerfactory":
+            return self._powerfactorymodules()
+        else:
+            gbl.Msg.AddError(f"Unsupported engine type: {engine_type}")
+            return False
+    def _powerfactorymodules(self):
+        """Initialize PowerFactory modules"""
+        try:
             # Initialize Load Flow Container
             from Code.Framework.PowerFactory.EnginePowerFactoryLoadFlow import EnginePowerFactoryLoadFlow
             gbl.EngineLoadFlowContainer = EnginePowerFactoryLoadFlow()
             # Initialize Short Circuit Container
             from Code.Framework.PowerFactory.EnginePowerFactoryShortCircuit import EnginePowerFactoryShortCircuit
             gbl.EngineShortCircuitContainer = EnginePowerFactoryShortCircuit()
-            
-            
-
-            self.isinitialized = True
-
+            return True
         except Exception as e:
-            print(f"Failed to initialize framework: {e}")
-            raise
+            gbl.Msg.AddError(f"Failed to initialize PowerFactory modules: {e}")
+            return False
+        
+    def initialisedatamodelmanager(self):
+        try:
+            from Code.DataModel.DataModelManager import DataModelManager
+            gbl.DataModelManager = DataModelManager()
+            gbl.DataModelManager.BasicEngineModelupdater = gbl.DataModelInterfaceContainer
+            return True
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to initialize data model manager: {e}")
+            return False
 
     def cleanup(self):
         """Clean up framework resources"""
@@ -100,7 +171,14 @@ class FrameworkInitialiser:
 
         except Exception as e:
             print(f"Error during cleanup: {e}")
-
+    def initialisestudysettings(self):
+        try:
+            from Code import StudySettings as StudySettings
+            gbl.StudySettingsContainer = StudySettings.StudySettings()
+            return True
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to initialize study settings: {e}")
+            return False
     def isready(self):
         """Check if framework is initialized and ready"""
         return self.is_initialized
