@@ -1,4 +1,5 @@
 class StudySettings:
+
     def __init__(self):
         self.DoLoadFlow = False
         self.DoShortCircuit = True
@@ -7,7 +8,7 @@ class StudySettings:
         self.DoVoltageStability = False
         self.DoTransientStability = False
         self.settings = {}
-        
+
         # Web interface settings
         self.EnableWebInterface = True
         self.WebInterfacePort = 5000
@@ -22,4 +23,3 @@ class StudySettings:
     def remove_setting(self, key):
         if key in self.settings:
             del self.settings[key]
-    
