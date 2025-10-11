@@ -19,8 +19,8 @@ EngineContainer       = None   # Generic analysis engine interface
 EngineLoadFlowContainer = None   # Load flow analysis engine interface
 EngineShortCircuitContainer = None   # Short circuit analysis engine interface
 DataModelInterfaceContainer    = None   # Stores data collected from the power systems network model via the engine
+DataModelManager = None
 StudySettingsContainer = None   # Stores study settings for the network model
+AppSettingsContainer = None   # Stores application settings
 DataFactory  = None   # Entry point for data model creation and management
 Msg          = None   # messaging class
-
-
