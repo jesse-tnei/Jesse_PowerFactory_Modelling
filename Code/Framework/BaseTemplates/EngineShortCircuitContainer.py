@@ -17,3 +17,6 @@ class EngineShortCircuitContainer:
     def getallshortcircuitresults(self):
         """This method retrieves all results of the short circuit analysis."""
         raise NotImplementedError("This method should be implemented by subclasses.")
+    def getgenshortcircuitcontributions(self):
+        """This method retrieves the generator contributions to short circuit currents."""
+        raise NotImplementedError("This method should be implemented by subclasses.")

@@ -9,26 +9,23 @@ import pythoncom
 from Code import GlobalEngineRegistry as gbl
 from Code.Framework.BaseTemplates.EngineContainer import EngineContainer as EngineContainer
 
+# disable pylint warnings for this file
+# pylint: disable=C0103
+
 class EnginePowerFactory(EngineContainer):
     """Engine class for PowerFactory"""
     def __init__(self, preferred_version = 2023):
         EngineContainer.__init__(self)
-        
         #get user input for preferred version
         self.m_ChosenVersion = preferred_version
-        
         #Dependency injection for globalised messaging
         self.m_oMsg = gbl.Msg
-        
         # PowerFactory version and type of engine - for display purposes
         self.m_pFApp = None # start by getting the PowerFactory application instance
         self.m_strTypeOfEngine = "Not Specified"
         self.m_strVersion = "Not Specified"
         self.m_strAuthor = "Not Specified"
-        
         self.m_active_network = None
-        
-        
         # PowerFactory study types - initialised to None
         self.m_NetworkToDataModelInterface = None
         self.m_oNetworkStudySettings = None
@@ -36,31 +33,27 @@ class EnginePowerFactory(EngineContainer):
         self.m_oNetworkHarmonicsRunInstance = None
         self.m_oNetworkShortCircuitRunInstance = None
         self.m_oNetworkFaultAnalysisRunInstance = None
-
         #allowed PowerFactory versions
         self.m_AllowableVersions = {
             2023: " PowerFactory 2023 V0.0.1",
             2024: "PowerFactory 2024 V0.0.1",
             2025: "PowerFactory 2025 V0.0.1"
         }
-        
-        
         # PowerFactory installation paths
         self.m_PowerFactoryInstallPath2023 = "C:\\Program Files\\DIgSILENT\\PowerFactory 2023 SP5\\Python\\3.11"
-        self.m_PowerFactoryInstallPath2024 = "C:\\Program Files\\DIgSILENT\\PowerFactory 2024"
+        self.m_PowerFactoryInstallPath2024 =r"C:\Program Files\DIgSILENT\PowerFactory 2024 SP4\Python\3.11"
         self.m_PowerFactoryInstallPath2025 = "C:\\Program Files\\DIgSILENT\\PowerFactory 2025"
-        
         # check to destroy any running PowerFactory processes
         self._killrunningpowerfactoryprocesses("PowerFactory.exe")
-        self.ShowLoadedApplication = True  # Show the loaded application
+        self.ShowLoadedApplication = False  # Show the loaded application
         self.loadpowerfactoryversion(self.m_ChosenVersion)
-        
 
     def ispowerfactory(self):
         """Check if this is a PowerFactory engine"""
         return True
     def getversion(self):
-        pass
+        """Get the PowerFactory version"""
+        return self.m_strVersion
     def _killrunningpowerfactoryprocesses(self, process_name:str) -> None:
         """Kill all running PowerFactory processes"""
         process_IDs = self._findpowerfactoryrunningprocessID(process_name)
@@ -126,7 +119,6 @@ class EnginePowerFactory(EngineContainer):
             self.m_oMsg.AddInfo(f"PowerFactory {version} environment loaded successfully")
         except ImportError as e:
             self.m_oMsg.AddError(f"Failed to load PowerFactory environment: {e}")
-            
     def opennetwork(self, strNetworkName: str):
         """Open a PowerFactory network by name"""
         return self.activatepowerfactorynetwork(strNetworkName)
@@ -216,7 +208,7 @@ class EnginePowerFactory(EngineContainer):
             if pfFolderName:
                 return self.m_pFApp.GetProjectFolder(pfFolderName)
             self.m_oMsg.AddError(f"Invalid item type: {itemType}")
-            return None     
+            return None
         except Exception as e:
             self.m_oMsg.AddError(f"Failed to get PowerFactory folder for type '{itemType}': {e}")
             return None
@@ -227,20 +219,8 @@ class EnginePowerFactory(EngineContainer):
             self.m_oMsg.AddError("No active PowerFactory network")
             return False
         return self.m_pFApp.GetActiveStudyCase()
-        
 
-        
-    
-    
-        
-        
-        
-        
-        
-        
-
-# To run this as a standalone script, make sure your terminal points to the Code directory otherwise the imports will fail        
-
+# To run this as a standalone script, make sure your terminal points to the Code directory otherwise the imports will fail
 if __name__ == "__main__":
     engine = EnginePowerFactory()
     engine.msg.OutputSplash()

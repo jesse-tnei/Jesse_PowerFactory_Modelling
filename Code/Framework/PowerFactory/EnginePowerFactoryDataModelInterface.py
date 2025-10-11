@@ -65,7 +65,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
             current = current.GetParent()
             
         if current:
-            terminal_id = f"{current.cpSubstat.GetAttribute('loc_name')}_{current.GetAttribute('loc_name')}_{current.GetAttribute('uknom')}"
+            terminal_id = f"{current.GetAttribute('loc_name')}_{current.GetAttribute('loc_name')}_{current.GetAttribute('uknom')}"
             return terminal_id
         
     def getbusbarvaluesfromnetwork(self, busbar):
@@ -87,12 +87,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                 busbar.kV = VMagkV
                 busbar.Disconnected = not ON             
         return bOK
-    
-    
-    
-    
-    
-        
 #____________________BRANCH METHODS________________________#
     def getbranchesfromnetwork(self):
             """Retrieves branches from the PowerFactory network."""
