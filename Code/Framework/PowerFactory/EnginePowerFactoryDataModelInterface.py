@@ -65,7 +65,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
             current = current.GetParent()
             
         if current:
-            terminal_id = f"{current.cpSubstat.GetAttribute('loc_name')}_{current.GetAttribute('loc_name')}_{current.GetAttribute('uknom')}"
+            terminal_id = f"{current.GetAttribute('loc_name')}_{current.GetAttribute('loc_name')}_{current.GetAttribute('uknom')}"
             return terminal_id
         
     def getbusbarvaluesfromnetwork(self, busbar):
