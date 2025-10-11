@@ -72,7 +72,7 @@ class FrameworkInitialiser:
             from Code import AppSettings as AppSettings
             gbl.AppSettingsContainer = AppSettings.AppSettings()
             gbl.AppSettingsContainer.EnableWebInterface = True
-            gbl.AppSettingsContainer.EnableAPI = True
+            gbl.AppSettingsContainer.EnableAPI = False #toggle this to enable enginepowerfactory
             gbl.AppSettingsContainer.EnableUI = True
             gbl.AppSettingsContainer.WebOnlyMode = False
             gbl.AppSettingsContainer.DebugMode = False
@@ -107,23 +107,23 @@ class FrameworkInitialiser:
         """Start web interface"""
         try:
             if gbl.StudySettingsContainer.EnableWebInterface and gbl.WebContainer:
-                # print(f"DEBUG: About to start web thread")
-                # print(f"DEBUG: self.gbl.WebContainer = {gbl.WebContainer}")
-                # print(f"DEBUG: type(self.gbl.WebContainer) = {type(gbl.WebContainer)}")
+                print(f"DEBUG: About to start web thread")
+                print(f"DEBUG: self.gbl.WebContainer = {gbl.WebContainer}")
+                print(f"DEBUG: type(self.gbl.WebContainer) = {type(gbl.WebContainer)}")
                 
                 host = getattr(gbl.AppSettingsContainer, 'WebInterfaceHost', 'localhost')
                 port = getattr(gbl.AppSettingsContainer, 'WebInterfacePort', 5000)
-                # print(f"DEBUG: host={host}, port={port}")
+                print(f"DEBUG: host={host}, port={port}")
                 
                 web_thread = threading.Thread(target=gbl.WebContainer, args=(host, port), daemon=True)
                 # print(f"DEBUG: Thread created: {web_thread}")
                 web_thread.start()
-                # print(f"DEBUG: Thread started, is_alive: {web_thread.is_alive()}")
+                print(f"DEBUG: Thread started, is_alive: {web_thread.is_alive()}")
                 
                 # Wait a moment and check if thread is still alive
                 import time
                 time.sleep(1)
-                # print(f"DEBUG: After 1 second, thread is_alive: {web_thread.is_alive()}")
+                print(f"DEBUG: After 1 second, thread is_alive: {web_thread.is_alive()}")
                 
                 gbl.Msg.AddInfo(f"Web interface started at http://{host}:{port}")
             return True
