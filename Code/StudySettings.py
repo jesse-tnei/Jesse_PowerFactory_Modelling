@@ -2,7 +2,7 @@ class StudySettings:
 
     def __init__(self):
         self.DoLoadFlow = False
-        self.DoShortCircuit = True
+        self.DoShortCircuit = False
         self.DoHarmonics = False
         self.DoContingencyAnalysis = False
         self.DoVoltageStability = False
