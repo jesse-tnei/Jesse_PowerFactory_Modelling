@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Load Flow - PowerFactory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class = 'loadflow-dark-theme'>
+<div id="container-loadflow"></div>
+<!-- Content -->
+<div class="container content-space-2 content-space-lg-3">
+  <div class="row">
+    <div class="col-md-4 col-lg-3 mb-9 mb-md-0">
+      <div class="pe-lg-2">
+        <div class="text-center mb-4">
+          <img class="loadflow-icon" src="{{ url_for('static', filename='images/LoadFlow2.png') }}" alt="Load Flow Icon">
+        </div>
+
+        <div class="mb-7">
+          <h1 class="h4">Categories</h1>
+          <a class="tag-glossy tag-blue me-1 mb-2" href="#">Featured</a>
+          <a class="tag-glossy tag-green me-1 mb-2" href="#">File management</a>
+          <a class="tag-glossy tag-purple me-1 mb-2" href="#">Productivity</a>
+          <a class="tag-glossy tag-orange me-1 mb-2" href="#">Essential apps</a>
+          <a class="tag-glossy tag-teal me-1 mb-2" href="#">Free</a>
+          <a class="tag-glossy tag-pink me-1 mb-2" href="#">Paid</a>
+          <a class="tag-glossy tag-blue me-1 mb-2" href="#">Google</a>
+        </div>
+      <div class="d-none d-md-block mb-7">
+        <h4>Development Team</h4>
+        
+        <!-- Engineering Consultant -->
+        <div class="mb-1">
+          <h6 class="text-muted small mb-1">ENGINEERING CONSULTANT</h6>
+          <div class="d-flex align-items-center mb-1">
+            <div class="flex-shrink-0">
+              <img class="avatar avatar-xs rounded-circle" src="https://via.placeholder.com/32x32/007bff/ffffff?text=EC" alt="Engineering Consultant">
+            </div>
+            <div class="flex-grow-1 ms-2">
+              <p class="mb-0 fw-medium text-white">John Smith</p>
+              <a class="link text-muted" href="https://linkedin.com/in/johnsmith" target="_blank" style="font-size: 0.7rem;">
+                <i class="bi-linkedin me-1"></i> LinkedIn
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technical Developer -->
+        <div class="mb-1">
+          <h6 class="text-muted small mb-1">TECHNICAL DEVELOPER</h6>
+          <div class="d-flex align-items-center mb-1">
+            <div class="flex-shrink-0">
+              <img class="avatar avatar-xs rounded-circle" src="https://via.placeholder.com/32x32/28a745/ffffff?text=TD" alt="Technical Developer">
+            </div>
+            <div class="flex-grow-1 ms-2">
+              <p class="mb-0 fw-medium text-white">Jane Doe</p>
+              <a class="link text-muted" href="https://linkedin.com/in/janedoe" target="_blank" style="font-size: 0.7rem;">
+                <i class="bi-linkedin me-1"></i> LinkedIn
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Research Contributions -->
+        <div class="mb-1">
+          <h6 class="text-muted small mb-1">RESEARCH CONTRIBUTIONS</h6>
+          
+          <!-- Researcher 1 -->
+          <div class="d-flex align-items-center mb-1">
+            <div class="flex-shrink-0">
+              <img class="avatar avatar-xs rounded-circle" src="https://via.placeholder.com/32x32/6f42c1/ffffff?text=R1" alt="Researcher">
+            </div>
+            <div class="flex-grow-1 ms-2">
+              <p class="mb-0 fw-medium text-white">Dr. Sarah Wilson</p>
+              <a class="link text-muted" href="https://linkedin.com/in/sarahwilson" target="_blank" style="font-size: 0.7rem;">
+                <i class="bi-linkedin me-1"></i> LinkedIn
+              </a>
+            </div>
+          </div>
+
+          <!-- Researcher 2 -->
+          <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <img class="avatar avatar-xs rounded-circle" src="https://via.placeholder.com/32x32/fd7e14/ffffff?text=R2" alt="Researcher">
+            </div>
+            <div class="flex-grow-1 ms-2">
+              <p class="mb-0 fw-medium text-white">Prof. Michael Chen</p>
+              <a class="link text-muted" href="https://linkedin.com/in/michaelchen" target="_blank" style="font-size: 0.7rem;">
+                <i class="bi-linkedin me-1"></i> LinkedIn
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+        <div class="d-none d-md-block mb-7">
+          <h4>Website</h4>
+
+          <a class="link" href="#">https://www.google.com/drive/</a>
+        </div>
+
+        <div class="d-none d-md-block mb-7">
+          <h4>Developer links</h4>
+
+          <!-- List Pointer -->
+          <ul class="list-unstyled list-pointer">
+            <li class="list-pointer-item">
+              <a class="link link-secondary" href="#">Support</a>
+            </li>
+            <li class="list-pointer-item">
+              <a class="link link-secondary" href="#">Documentation</a>
+            </li>
+            <li class="list-pointer-item">
+              <a class="link link-secondary" href="#">Privacy Policy</a>
+            </li>
+          </ul>
+          <!-- End List Pointer -->
+        </div>
+
+        <a class="link-sm link-secondary" href="#">
+          <i class="bi-flag me-2"></i> Report abuse
+        </a>
+      </div>
+    </div>
+    <!-- End Col -->
+
+    <div class="col-md-8 col-lg-9 column-divider-md">
+      <div class="ps-lg-2">
+        <!-- Nav Scroller -->
+        <div class="js-nav-scroller hs-nav-scroller-horizontal">
+          <span class="hs-nav-scroller-arrow-prev" style="display: none;">
+            <a class="hs-nav-scroller-arrow-link" href="javascript:;">
+              <i class="bi-chevron-left"></i>
+            </a>
+          </span>
+
+          <span class="hs-nav-scroller-arrow-next" style="display: none;">
+            <a class="hs-nav-scroller-arrow-link" href="javascript:;">
+              <i class="bi-chevron-right"></i>
+            </a>
+          </span>
+
+          <!-- Nav -->
+        <ul class="nav nav-dark-theme nav-fill mb-7" id="featuresTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link nav-link-purple active" href="#featuresOne" id="featuresOne-tab" data-bs-toggle="tab" data-bs-target="#featuresOne" role="tab" aria-controls="featuresOne" aria-selected="true" style="min-width: 7rem;">About</a>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <a class="nav-link nav-link-purple" href="#featuresTwo" id="featuresTwo-tab" data-bs-toggle="tab" data-bs-target="#featuresTwo" role="tab" aria-controls="featuresTwo" aria-selected="false" style="min-width: 7rem;">Run Study</a>
+            </li>
+
+            <li class="nav-item" role="presentation">
+                <a class="nav-link nav-link-purple" href="#featuresThree" id="featuresThree-tab" data-bs-toggle="tab" data-bs-target="#featuresThree" role="tab" aria-controls="featuresThree" aria-selected="false" style="min-width: 7rem;">Review Results</a>
+            </li>
+        </ul>
+          <!-- End Nav -->
+        </div>
+        <!-- End Nav Scroller -->
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="pills-tabContent">
+          <div class="tab-pane fade show active" id="featuresOne" role="tabpanel" aria-labelledby="featuresOne-tab">
+            <p>Use Google Drive within Slack to:</p>
+
+            <ul class="list-unstyled list-pointer mb-5">
+              <li class="list-pointer-item">Create new Google Docs, Slides, and Sheets files</li>
+              <li class="list-pointer-item">Import an existing file from Google Drive into a channel or direct message</li>
+              <li class="list-pointer-item">Search directly within Google Drive files shared within Slack</li>
+              <li class="list-pointer-item">Automatically grant access to the files you share with the right audience</li>
+              <li class="list-pointer-item">Get updates in Slack on changes in Drive, like comments, access requests, and new files shared with you</li>
+              <li class="list-pointer-item">Reply directly to comment notifications from within Slack and have them posted to the file</li>
+            </ul>
+          </div>
+
+          <div class="tab-pane fade" id="featuresTwo" role="tabpanel" aria-labelledby="featuresTwo-tab">
+            <!-- Run Analysis Section -->
+            <div class="d-grid mb-4">
+            <a class="btn btn-lg btn-primary" href="#">
+                <i class="bi-play-circle me-2"></i>Run Load Flow Analysis
+            </a>
+            </div>
+            <!-- End Run Analysis Section -->
+            <div class="row justify-content-sm-between align-items-sm-center border-bottom pb-3 mb-4">
+              <div class="col-sm mb-2 mb-sm-0">
+                <h4 class="mb-0">Reviews <small class="text-muted ms-1">(156)</small></h4>
+              </div>
+              <!-- End Col -->
+
+              <div class="col-sm-auto">
+                <!-- Select -->
+                <select class="form-select form-select-sm">
+                  <option value="showCategoryByFilterSelect1" selected>Newest first</option>
+                  <option value="showCategoryByFilterSelect2">Highest rated</option>
+                  <option value="showCategoryByFilterSelect3">Lowest rated</option>
+                </select>
+                <!-- End Select -->
+              </div>
+              <!-- End Col -->
+            </div>
+            <!-- End Row -->
+
+            <!-- Comment -->
+            <ul class="list-comment mb-7">
+              <!-- Item -->
+              <li class="list-comment-item">
+                <!-- Media -->
+                <div class="d-flex mb-3">
+                  <div class="flex-shrink-0">
+                    <img class="avatar avatar-circle" src="../assets/img/160x160/img3.jpg" alt="Image Description">
+                  </div>
+
+                  <div class="flex-grow-1 ms-3">
+                    <h5>Dave Austin</h5>
+
+                    <p>Just started using Front for Google Drive, and finding it to serve all my needs and it integrates perfectly with Front! Sharing diagrams is now much easier for our team.</p>
+
+                    <!-- Media -->
+                    <div class="d-flex align-items-center">
+                      <span class="small me-2">Was this helpful?</span>
+
+                      <div class="d-flex gap-2">
+                        <a class="btn btn-white btn-xs" href="javascript:;">
+                          <i class="bi-hand-thumbs-up me-1"></i> Yes <span>(45)</span>
+                        </a>
+                        <a class="btn btn-white btn-xs" href="javascript:;">
+                          <i class="bi-hand-thumbs-down me-1"></i> No <span>(21)</span>
+                        </a>
+                      </div>
+                    </div>
+                    <!-- End Media -->
+
+                    <!-- Comment -->
+                    <ul class="list-comment">
+                      <!-- Item -->
+                      <li class="list-comment-item">
+                        <!-- Media -->
+                        <div class="d-flex align-items-center mb-3">
+                          <div class="flex-shrink-0">
+                            <img class="avatar avatar-sm" src="../assets/svg/brands/google-drive-icon.svg" alt="Image Description">
+                          </div>
+
+                          <div class="flex-grow-1 ms-3">
+                            <h5 class="mb-0">Google Drive</h5>
+                          </div>
+                        </div>
+                        <!-- End Media -->
+
+                        <p>Thanks for the review Maria! Let us know if you ever need anything.</p>
+                      </li>
+                      <!-- End Item -->
+                    </ul>
+                    <!-- End Comment -->
+                  </div>
+                </div>
+                <!-- End Media -->
+              </li>
+              <!-- End Item -->
+
+              <!-- Item -->
+              <li class="list-comment-item">
+                <!-- Media -->
+                <div class="d-flex mb-3">
+                  <div class="flex-shrink-0">
+                    <img class="avatar avatar-circle" src="../assets/img/160x160/img8.jpg" alt="Image Description">
+                  </div>
+
+                  <div class="flex-grow-1 ms-3">
+                    <h5>Hanna Wolfe</h5>
+
+                    <p>This is a pretty cool integration. It is fun and easy to use. I had to make a few sharing for work and Gliffy helped me get the job done. If I had a tablet or touch screen, I would use this more.</p>
+
+                    <!-- Media -->
+                    <div class="d-flex align-items-center">
+                      <span class="small me-2">Was this helpful?</span>
+
+                      <div class="d-flex gap-2">
+                        <a class="btn btn-white btn-xs" href="javascript:;">
+                          <i class="bi-hand-thumbs-up me-1"></i> Yes <span>(5)</span>
+                        </a>
+                        <a class="btn btn-white btn-xs" href="javascript:;">
+                          <i class="bi-hand-thumbs-down me-1"></i> No <span>(0)</span>
+                        </a>
+                      </div>
+                    </div>
+                    <!-- End Media -->
+
+                    <!-- Comment -->
+                    <ul class="list-comment">
+                      <!-- Item -->
+                      <li class="list-comment-item">
+                        <!-- Media -->
+                        <div class="d-flex align-items-center mb-3">
+                          <div class="flex-shrink-0">
+                            <img class="avatar avatar-sm" src="../assets/svg/brands/google-drive-icon.svg" alt="Image Description">
+                          </div>
+
+                          <div class="flex-grow-1 ms-3">
+                            <h5 class="mb-0">Google Drive</h5>
+                          </div>
+                        </div>
+                        <!-- End Media -->
+
+                        <p>Love it Dave! We're all about keeping it fun and easy.</p>
+                      </li>
+                      <!-- End Item -->
+                    </ul>
+                    <!-- End Comment -->
+                  </div>
+                </div>
+                <!-- End Media -->
+              </li>
+              <!-- End Item -->
+
+              <!-- Item -->
+              <li class="list-comment-item">
+                <!-- Media -->
+                <div class="d-flex mb-3">
+                  <div class="flex-shrink-0">
+                    <img class="avatar avatar-circle" src="../assets/img/160x160/img7.jpg" alt="Image Description">
+                  </div>
+
+                  <div class="flex-grow-1 ms-3">
+                    <h5>Nika Mundada</h5>
+
+                    <p>I love Google Drive! It's super easy to get started and works great with Front pages.</p>
+
+                    <!-- Media -->
+                    <div class="d-flex align-items-center">
+                      <span class="small me-2">Was this helpful?</span>
+
+                      <div class="d-flex gap-2">
+                        <a class="btn btn-white btn-xs" href="javascript:;">
+                          <i class="bi-hand-thumbs-up me-1"></i> Yes <span>(0)</span>
+                        </a>
+                        <a class="btn btn-white btn-xs" href="javascript:;">
+                          <i class="bi-hand-thumbs-down me-1"></i> No <span>(0)</span>
+                        </a>
+                      </div>
+                    </div>
+                    <!-- End Media -->
+
+                    <!-- Comment -->
+                    <ul class="list-comment">
+                      <!-- Item -->
+                      <li class="list-comment-item">
+                        <!-- Media -->
+                        <div class="d-flex align-items-center mb-3">
+                          <div class="flex-shrink-0">
+                            <img class="avatar avatar-sm" src="../assets/svg/brands/google-drive-icon.svg" alt="Image Description">
+                          </div>
+
+                          <div class="flex-grow-1 ms-3">
+                            <h5 class="mb-0">Google Drive</h5>
+                          </div>
+                        </div>
+                        <!-- End Media -->
+
+                        <p>Thanks for the feedback Nika!</p>
+                      </li>
+                      <!-- End Item -->
+                    </ul>
+                    <!-- End Comment -->
+                  </div>
+                </div>
+                <!-- End Media -->
+              </li>
+              <!-- End Item -->
+            </ul>
+            <!-- End Comment -->
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+              <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                  <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">
+                      <i class="bi-chevron-double-left small"></i>
+                    </span>
+                  </a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                <li class="page-item"><a class="page-link" href="#">5</a></li>
+                <li class="page-item">
+                  <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">
+                      <i class="bi-chevron-double-right small"></i>
+                    </span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+            <!-- End Pagination -->
+          </div>
+
+          <div class="tab-pane fade" id="featuresThree" role="tabpanel" aria-labelledby="featuresThree-tab">
+            <h4 class="mb-3">Pricing plans</h4>
+
+            <!-- Form -->
+            <form>
+              <div class="d-grid gap-2 mb-5">
+                <!-- Card -->
+                <div class="card card-sm card-bordered shadow-none">
+                  <div class="card-body">
+                    <div class="row align-items-sm-center">
+                      <div class="col">
+                        <div class="d-flex align-items-center">
+                          <div class="flex-shrink-0">
+                            <span class="svg-icon svg-icon-sm text-center text-primary" style="min-width: 3rem;">
+
+
+
+
+                            </span>
+                          </div>
+
+                          <div class="flex-grow-1 ms-4">
+                            <h4 class="card-title mb-0">Launch</h4>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- End Col -->
+
+                      <div class="col-sm-7 col-md-6">
+                        <p class="card-text small">99GB storage in launch accounts</p>
+                      </div>
+                      <!-- End Col -->
+
+                      <div class="col-12 col-lg-2 mt-3 mt-lg-0">
+                        <div class="d-grid">
+                          <a class="btn btn-outline-primary" href="https://themes.getbootstrap.com/product/front-multipurpose-responsive-template/" target="_blank">$49</a>
+                        </div>
+                      </div>
+                      <!-- End Col -->
+                    </div>
+                    <!-- End Row -->
+                  </div>
+                </div>
+                <!-- End Card -->
+
+                <!-- Card -->
+                <div class="card card-sm card-bordered shadow-none">
+                  <div class="card-body">
+                    <div class="row align-items-sm-center">
+                      <div class="col">
+                        <div class="d-flex align-items-center">
+                          <div class="flex-shrink-0">
+                            <span class="svg-icon text-center text-primary" style="min-width: 3rem;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            </span>
+                          </div>
+
+                          <div class="flex-grow-1 ms-4">
+                            <h4 class="card-title mb-0">Growth</h4>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- End Col -->
+
+                      <div class="col-sm-7 col-md-6">
+                        <p class="card-text small">500GB storage in growth accounts</p>
+                      </div>
+                      <!-- End Col -->
+
+                      <div class="col-12 col-lg-2 mt-3 mt-lg-0">
+                        <div class="d-grid">
+                          <a class="btn btn-outline-primary" href="https://themes.getbootstrap.com/product/front-multipurpose-responsive-template/" target="_blank">$149</a>
+                        </div>
+                      </div>
+                      <!-- End Col -->
+                    </div>
+                    <!-- End Row -->
+                  </div>
+                </div>
+                <!-- End Card -->
+
+                <!-- Card -->
+                <div class="card card-sm card-bordered shadow-none">
+                  <div class="card-body">
+                    <div class="row align-items-sm-center">
+                      <div class="col">
+                        <div class="d-flex align-items-center">
+                          <div class="flex-shrink-0">
+                            <span class="svg-icon text-center text-primary" style="min-width: 3rem;">
+
+
+
+
+                            </span>
+                          </div>
+
+                          <div class="flex-grow-1 ms-4">
+                            <h4 class="card-title mb-0">Enterprise</h4>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- End Col -->
+
+                      <div class="col-sm-7 col-md-6">
+                        <p class="card-text small">100TB storage in enterprise accounts</p>
+                      </div>
+                      <!-- End Col -->
+
+                      <div class="col-12 col-lg-2 mt-3 mt-lg-0">
+                        <div class="d-grid">
+                          <a class="btn btn-outline-primary" href="https://themes.getbootstrap.com/product/front-multipurpose-responsive-template/" target="_blank">$599</a>
+                        </div>
+                      </div>
+                      <!-- End Col -->
+                    </div>
+                    <!-- End Row -->
+                  </div>
+                </div>
+                <!-- End Card -->
+              </div>
+
+              <!-- Card Info -->
+              <div class="text-center">
+                <div class="card card-info-link card-sm">
+                  <div class="card-body">
+                    Need 100TB+ storage? <a class="card-link ms-2" href="#">Contact us <span class="bi-chevron-right small ms-1"></span></a>
+                  </div>
+                </div>
+              </div>
+              <!-- End Card Info -->
+            </form>
+            <!-- End Form -->
+          </div>
+        </div>
+        <!-- End Tab Content -->
+      </div>
+    </div>
+    <!-- End Col -->
+  </div>
+  <!-- End Row -->
+</div>
+<!-- End Content -->
+
+<!-- End Content -->
+ <!-- Three.js and Loadflow Background -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    <script type="module" src="{{ url_for('static', filename='js/metaballsloadflow.js') }}"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Your JavaScript code here
+    </script>
+</body>
+</html>
