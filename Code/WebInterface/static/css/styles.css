@@ -655,3 +655,28 @@ body::after {
 .loadflow-dark-theme .link {
   color: var(--text-primary);
 }
+
+/* LoadFlow Icon Styling */
+/* LoadFlow Icon Styling */
+/* LoadFlow Icon Styling */
+.loadflow-icon {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  background: transparent;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  
+  /* This will make the gray/black parts white */
+  filter: brightness(0) invert(1);
+}
+
+.loadflow-icon:hover {
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
+}
