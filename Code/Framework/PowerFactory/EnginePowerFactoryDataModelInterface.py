@@ -7,29 +7,23 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         EngineDataModelInterfaceContainer.__init__(self)
         self.terminal_dictionary = {}  # Dictionary to hold terminal IDs and their corresponding bus IDs
         self.load_dictionary = {}  # Dictionary to hold load IDs and their corresponding bus IDs
-        
         self.generator_dictionary = {}  # Dictionary to hold generator IDs and their corresponding bus IDs
         self.branch_dictionary = {}  # Dictionary to hold branch IDs and their corresponding bus IDs
-        
-        
-        
-    
-    
-    #____________________OVERALL DATAMODELMANAGER LOADING METHODS________________________#  
-    # def passelementsfromnetworktodatamodelmanager(self):
-    #     """This method retrieves elements from the network and passes them to the DataModelManager."""
-    #     bOK = True
-    #     if bOK:
-    #         bOK = self.getbusbarsfromnetwork()
-    #     if bOK:
-    #         bOK = self.getbranchesfromnetwork()
-    #     if bOK:
-    #         bOK = self.getgeneratorsfromnetwork()
-    #     if bOK:
-    #         bOK = self.getloadsfromnetwork()
-    #     if bOK:
-    #         bOK = self.getexternalgridsfromnetwork()
-    #     return bOK
+    #____________________OVERALL DATAMODELMANAGER LOADING METHODS________________________# 
+    def passelementsfromnetworktodatamodelmanager(self):
+        """This method retrieves elements from the network and passes them to the DataModelManager."""
+        bOK = True
+        if bOK:
+            bOK = self.getbusbarsfromnetwork()
+        if bOK:
+            bOK = self.getbranchesfromnetwork()
+        if bOK:
+            bOK = self.getgeneratorsfromnetwork()
+        if bOK:
+            bOK = self.getloadsfromnetwork()
+        if bOK:
+            bOK = self.getexternalgridsfromnetwork()
+        return bOK
 
     #____________________BUSBAR METHODS________________________#
 
@@ -38,13 +32,12 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
         """Retrieves busbars from the PowerFactory network."""
         bOK = True
         if bOK:
-            terminals = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("ElmTerm")   
+            terminals = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("ElmTerm")
         if terminals:
             gbl.Msg.AddRawMessage(f"Total busbars retrieved successfully from the network: {len(terminals)}")
             for terminal in terminals:
                 terminal_id = self.standardize_terminal_id(terminal)
                 self.terminal_dictionary[terminal_id] = terminal
-            
                 busbar = gbl.DataFactory.createbusbar(terminal_id)
                 if busbar is None:
                     self.m_oMsg.AddError(f"Failed to create busbar for terminal {terminal_id}.")
@@ -54,20 +47,17 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                     continue
                 if not gbl.DataModelManager.addbusbartotab(busbar):
                     self.m_oMsg.AddError(f"Failed to add busbar {busbar.BusID} to DataModel.")
-                    continue
-        gbl.Msg.AddRawMessage(f"Total busbars added to DataModel: {len(self.terminal_dictionary)}")  
+        gbl.Msg.AddRawMessage(f"Total busbars added to DataModel: {len(self.terminal_dictionary)}")
         return bOK
-    
     def standardize_terminal_id(self, terminal: object) -> str:
         """Standardizes the bus ID to a consistent format."""
         current = terminal
         while current and current.GetClassName() != "ElmTerm":
             current = current.GetParent()
-            
         if current:
             terminal_id = f"{current.GetAttribute('loc_name')}_{current.GetAttribute('loc_name')}_{current.GetAttribute('uknom')}"
             return terminal_id
-        
+        return None
     def getbusbarvaluesfromnetwork(self, busbar):
         """Retrieves busbar values from the PowerFactory network."""
         bOK = True
@@ -85,17 +75,17 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
             else:
                 busbar.name = name
                 busbar.kV = VMagkV
-                busbar.Disconnected = not ON             
+                busbar.Disconnected = not ON
         return bOK
 #____________________BRANCH METHODS________________________#
     def getbranchesfromnetwork(self):
-            """Retrieves branches from the PowerFactory network."""
-            bOK = True
-            if bOK:
-                bOK = self.get_linesfromnetwork()
-            if bOK:
-                bOK = self.get_transformersfromnetwork()
-            return bOK
+        """Retrieves branches from the PowerFactory network."""
+        bOK = True
+        if bOK:
+            bOK = self.get_linesfromnetwork()
+        if bOK:
+            bOK = self.get_transformersfromnetwork()
+        return bOK
 
     def get_linesfromnetwork(self):
         """Retrieves lines from the PowerFactory network."""
@@ -140,13 +130,12 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                     line_datamodel.ON = ON
 
         return bOK
-    
     def get_transformersfromnetwork(self):
         """Retrieves transformers from the PowerFactory network."""
         bOK = True
         initialbranchtablength = len(gbl.DataModelManager.Branch_TAB)
         if bOK:
-            transformers = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("*.ElmTr2,")
+            transformers = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("*.ElmTr2")
             gbl.Msg.AddRawMessage(f"Total transformers retrieved successfully from the network: {len(transformers)}")
             for transformer in transformers:
                 transformer_id = transformer.GetAttribute("loc_name")
@@ -167,7 +156,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                             gbl.Msg.AddError(f"Failed to retrieve values for transformer {transformer_datamodel.BranchID}.")
                             continue
                         gbl.DataModelManager.Branch_TAB.append(transformer_datamodel)
-                        
                 if terminal1 and terminal2 and terminal3:
                     bus1_id = self.standardize_terminal_id(terminal1)
                     bus2_id = self.standardize_terminal_id(terminal2)
@@ -185,7 +173,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                         gbl.DataModelManager.Branch_TAB.append(transformer_datamodel)
         gbl.Msg.AddRawMessage(f"Total transformers added to DataModel: {len(gbl.DataModelManager.Branch_TAB) - initialbranchtablength}")
         return bOK
-    
     def gettransformervvaluesfromnetwork(self, transformer_datamodel):
         """Retrieves transformer values from the PowerFactory network."""
         bOK = True
@@ -194,21 +181,71 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
             if transformer_obj:
                 name = transformer_obj.GetAttribute("loc_name")
                 ON = not(bool(transformer_obj.GetAttribute("outserv")))
+                transfomer_type = transformer_obj.GetAttribute("typ_id")
+                tapchangeronestatus = transfomer_type.GetAttribute("itapch")
+                tapchangertwostatus = transfomer_type.GetAttribute("itapch2")
 
-                if name is None or ON is None:
+                if name is None or ON is None or tapchangeronestatus is None or tapchangertwostatus is None:
                     gbl.Msg.AddError(f"Failed to retrieve values for transformer {transformer_datamodel.BranchID}.")
                     bOK = False
                 else:
                     transformer_datamodel.Txname = name
                     transformer_datamodel.ON = ON
-
+                    transformer_datamodel.tapchangeronestatus = tapchangeronestatus
+                    transformer_datamodel.tapchangertwostatus = tapchangertwostatus
         return bOK
-
-
-
-
-
-
+    def switchtransformertapstatus(self, transformer_datamodel, tapchangeronestatus, tapchangertwostatus = 0):
+        bOK = False
+        try:
+            transformer_typid = None
+            transformer_powerfactory = self.branch_dictionary.get(transformer_datamodel.BranchID)
+            if transformer_powerfactory:
+                transformer_typid = transformer_powerfactory.GetAttribute("typ_id")
+            if transformer_typid:
+                transformer_typid.SetAttribute("itapch", tapchangeronestatus)
+                transformer_typid.SetAttribute("itapch2", tapchangertwostatus)
+            if tapchangeronestatus == 1:
+                transformer_powerfactory.SetAttribute("ntrcn", tapchangeronestatus)
+            if tapchangertwostatus == 1:
+                transformer_powerfactory.SetAttribute("ntrcn2", tapchangeronestatus)
+                bOK = True
+            return bOK
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to switch transformer tap status for transformer {transformer_datamodel.BranchID}. Error: {e}")
+            return bOK
+    def settransformervaluestonetwork(self, transformer_datamodel, **kwargs):
+        bOK = False
+        tapchangerattributes = {
+            'type':'tapchtype', #0 ratio/asym, 1 ideal phase shifter, 2 sym phase shifter
+            'controlside':'tap_side', #0HV, 1LV
+            'additionvoltpertap': 'dutap', #percentage
+            'tapphase' : 'phitr', #phase angle
+            'neutralposition': 'nntap0',
+            'mintapposition':'ntpmn',
+            'maxtapposition':'ntpmx',
+            'tapchangertype': 'i_cont', #0 discrete steps, 1 continuous steps
+            'controlnode': 't2ldc', #0HV, 1LV, 2 external
+            'controlmode': 'imldc', # 0V, 1P, 2Q
+            'phasetocontrol': 'ilcph', #0A, 1B, 2C, 3A-B,4B-C, 5A-C, 6 pos seq
+            'setpoint': 'usetmode', #0local, 1 bus target voltage
+            'voltagesetpoint' :'usetp', #pu target bus voltage
+            'lowervoltagesetpoint':'usp_low', #pu
+            'highervoltagesetpoint':'usp_up', #pu
+            'controllertimeconstant' : 'Tctrl', #seconds
+            'compensation': 'ildc' #0 none, 1 internal ldc, 2 external ldc, 3 current compounding
+        }
+        try:
+            transformer_powerfactory = self.branch_dictionary.get(transformer_datamodel.BranchID)
+            if transformer_powerfactory:
+                for param, param_value in kwargs.items():
+                    if transformer_datamodel.tapchangeronestatus == 1 and transformer_powerfactory.typ_id:
+                        gbl.Msg.AddRawMessage(f"Setting transformer {transformer_datamodel.BranchID} attribute {param} to {param_value}")
+                        transformer_powerfactory.typ_id.SetAttribute(tapchangerattributes[param], param_value)
+                bOK = True
+            return bOK
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to set transformer values for transformer {transformer_datamodel.BranchID}. Error: {e}")
+            return bOK
 
 #____________________LOAD METHODS________________________#
 
@@ -237,7 +274,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                             continue
         gbl.Msg.AddRawMessage(f"Total loads added to DataModel: {len(gbl.DataModelManager.Load_TAB)}")
         return bOK
-    
     def getloadvaluesfromnetwork(self, load_item):
         """Retrieves load values from the PowerFactory network."""
         bOK = True
@@ -248,7 +284,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                 P = load_obj.GetAttribute("plini")
                 Q = load_obj.GetAttribute("qlini")
                 ON = not(bool(load_obj.GetAttribute("outserv")))
-                
                 if name is None or P is None or Q is None or ON is None:
                     gbl.Msg.AddError(f"Failed to retrieve values for load {load_item.LoadID}.")
                     bOK = False
@@ -258,8 +293,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                     load_item.MVar = Q
                     load_item.ON = ON
         return bOK
-    
-    
 #____________________GENERATOR METHODS________________________#
     def getgeneratorsfromnetwork(self):
         """Retrieves generators from the PowerFactory network."""
@@ -286,7 +319,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                             continue
         gbl.Msg.AddRawMessage(f"Total generators added to DataModel: {len(gbl.DataModelManager.Gen_TAB)}")
         return bOK
-    
     def getgeneratorvaluesfromnetwork(self, gen_item):
         """Retrieves generator values from the PowerFactory network."""
         bOK = True
@@ -301,7 +333,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                 Pnom = gen_obj.GetAttribute("Pnom")
                 Qmax = gen_obj.GetAttribute("cQ_max")
                 Qmin = gen_obj.GetAttribute("cQ_min")
-                
                 if any(x is None for x in [name, P, Q, ON, pf, Pnom, Qmax, Qmin]):
                     gbl.Msg.AddError(f"Failed to retrieve values for generator {gen_item.GenID}.")
                     bOK = False
@@ -315,7 +346,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                     gen_item.Qmax = Qmax
                     gen_item.Qmin = Qmin
         return bOK
-    
     def getexternalgridsfromnetwork(self):
         """Retrieves external grids from the PowerFactory network."""
         bOK = True
@@ -345,7 +375,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                             continue
         gbl.Msg.AddRawMessage(f"Total external grids added to DataModel: {len(gbl.DataModelManager.Gen_TAB) - initialgentablength}")
         return bOK
-        
     def getexternalgridvaluesfromnetwork(self, ext_grid_item):
         """Retrieves external grid values from the PowerFactory network."""
         bOK = True
@@ -374,4 +403,3 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                     ext_grid_item.pf = pf
                     ext_grid_item.BusType = bustype
         return bOK
-                

@@ -16,11 +16,31 @@ if __name__ == "__main__":
     if gbl.AppSettingsContainer.EnableAPI and gbl.AppSettingsContainer.EnableWebInterface:
         fw.initializefullproduct()
         gbl.Msg.DisplayWelcomeMessage()
-        gbl.EngineContainer.activatepowerfactorynetwork(r"LDF")
+        gbl.EngineContainer.activatepowerfactorynetwork(r"0.  PM_Anderson_9_Bus_System")
         gbl.EngineContainer.activatepowerfactorystudycase("Study Case")
         gbl.DataModelInterfaceContainer.passelementsfromnetworktodatamodelmanager()
         if gbl.StudySettingsContainer.DoLoadFlow:
-            gbl.EngineLoadFlowContainer.runloadflow()
+            for branch in gbl.DataModelManager.Branch_TAB:
+                if branch.IsTransformer:
+                    gbl.DataModelInterfaceContainer.switchtransformertapstatus(branch, 1, 0)
+                    tapchangerattributes = {
+                        'type': 0,  #0 ratio/asym
+                        'controlside': 0,  #0HV
+                        'additionvoltpertap': 1,  #percentage
+                        'tapphase': 0,  #phase angle
+                        'neutralposition': 5,
+                        'mintapposition': 10,
+                        'maxtapposition': 0
+                    }
+                    gbl.DataModelInterfaceContainer.settransformervaluestonetwork(
+                        branch, **tapchangerattributes)
+            loadflowsettings = {
+                'CalculationMethod': 0,
+                'AutomaticPhaseShifterTapAdjustment': 0,
+                'AutomaticTapAdjustmentTransformer': 1,
+            }
+            gbl.EngineLoadFlowContainer.runloadflow(**loadflowsettings)
+            #gbl.EngineLoadFlowContainer.runloadflow()
             gbl.EngineLoadFlowContainer.getandupdatebusbarloadflowresults()
             gbl.EngineLoadFlowContainer.getandupdatelineloadflowresults()
             gbl.EngineLoadFlowContainer.getandupdatetransformerflowresults()

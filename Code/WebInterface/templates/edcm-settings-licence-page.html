@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDCM Tool - Licence Management</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #FFFFFF;
+            color: #333333;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Colour Palette */
+        :root {
+            --primary-blue: #5B9BD5;
+            --primary-hover: #4A89C5;
+            --highlight-blue: #E7F1FB;
+            --success-green: #70AD47;
+            --warning-amber: #FFC000;
+            --error-red: #C5504B;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F5F5F5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-default: #D4D4D4;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .small-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Sidebar Navigation - Fixed */
+        .sidebar {
+            width: 240px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-default);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Custom scrollbar for sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #a0a0a0;
+        }
+
+        .logo-section {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .logo-section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-blue);
+        }
+
+        .version {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .licence-status {
+            display: inline-block;
+            padding: 4px 8px;
+            background-color: var(--success-green);
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        .nav-section {
+            flex: 1;
+            padding: 16px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background-color: #E8E8E8;
+        }
+
+        .nav-item.active {
+            background-color: var(--highlight-blue);
+            color: var(--primary-blue);
+            border-left: 3px solid var(--primary-blue);
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .workflow-section {
+            padding: 16px;
+            border-top: 1px solid var(--border-default);
+        }
+
+        .workflow-header {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .workflow-steps {
+            margin-left: 8px;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .workflow-step:hover {
+            color: var(--primary-blue);
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #E0E0E0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .user-section {
+            padding: 16px;
+            border-top: 1px solid var(--border-default);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #E3F2FD;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header - Fixed */
+        .header {
+            height: 80px;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-default);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .breadcrumb {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--highlight-blue);
+        }
+
+        .btn-success {
+            background-color: var(--success-green);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #5C9037;
+        }
+
+        /* Settings Container - Scrollable */
+        .settings-container {
+            display: flex;
+            flex: 1;
+            background-color: var(--bg-primary);
+            overflow: hidden;
+        }
+
+        /* Settings Sidebar - Fixed within main content */
+        .settings-sidebar {
+            width: 280px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-default);
+            padding: 24px 0;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .settings-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .settings-nav-item:hover {
+            background-color: #E8E8E8;
+        }
+
+        .settings-nav-item.active {
+            background-color: var(--highlight-blue);
+            color: var(--primary-blue);
+            border-left: 3px solid var(--primary-blue);
+        }
+
+        .settings-nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Settings Content Area - Scrollable */
+        .settings-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Custom scrollbar for settings content */
+        .settings-content::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .settings-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .settings-content::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border-radius: 5px;
+        }
+
+        .settings-content::-webkit-scrollbar-thumb:hover {
+            background: #a0a0a0;
+        }
+
+        /* Licence Sections */
+        .licence-status-card {
+            background-color: #F0F9FF;
+            border: 1px solid #BCE0FF;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--success-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .status-info {
+            flex: 1;
+        }
+
+        .status-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .status-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .licence-section {
+            background-color: white;
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .info-item {
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Modules List */
+        .modules-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .module-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .module-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-blue);
+            color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .module-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .module-status {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--success-green);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Key Management */
+        .key-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--border-default);
+            border-radius: 8px;
+            padding: 32px;
+            text-align: center;
+            background-color: var(--bg-secondary);
+            margin-top: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary-blue);
+            background-color: var(--highlight-blue);
+        }
+
+        .file-upload-area.active {
+            border-color: var(--primary-blue);
+            background-color: var(--highlight-blue);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Key Display */
+        .key-display {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: 4px;
+            padding: 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 16px;
+            position: relative;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px 8px;
+            font-size: 12px;
+            background-color: white;
+            border: 1px solid var(--border-default);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .copy-button:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        /* Validation Result */
+        .validation-result {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .validation-result.success {
+            background-color: #D4EDDA;
+            border: 1px solid #C3E6CB;
+            color: #155724;
+        }
+
+        .validation-result.error {
+            background-color: #F8D7DA;
+            border: 1px solid #F5C6CB;
+            color: #721C24;
+        }
+
+        /* Checkbox items */
+        .modules-checklist {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: not-allowed;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Hidden file input */
+        .hidden-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation - Fixed -->
+    <nav class="sidebar">
+        <div class="logo-section">
+            <h2>EDCM Tool</h2>
+            <div class="version">v1.0.0</div>
+            <div class="licence-status">FCP Licensed</div>
+        </div>
+
+        <div class="nav-section">
+            <a href="#" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">📁</span>
+                <span>Projects</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="nav-icon">⚙️</span>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span>Results</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">❓</span>
+                <span>Help</span>
+            </a>
+        </div>
+
+        <div class="workflow-section">
+            <div class="workflow-header">
+                <span>Calculation Workflow</span>
+                <span>▼</span>
+            </div>
+            <div class="workflow-steps">
+                <div class="workflow-step">
+                    <span class="step-number">1</span>
+                    <span>Input</span>
+                </div>
+                <div class="workflow-step">
+                    <span class="step-number">2</span>
+                    <span>Prepare</span>
+                </div>
+                <div class="workflow-step">
+                    <span class="step-number">3</span>
+                    <span>Groups</span>
+                </div>
+                <div class="workflow-step">
+                    <span class="step-number">4</span>
+                    <span>FCP</span>
+                </div>
+                <div class="workflow-step">
+                    <span class="step-number">5</span>
+                    <span>NUF</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="user-section">
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <div>
+                    <div style="font-size: 14px;">John Doe</div>
+                    <div class="small-text">Engineer</div>
+                </div>
+            </div>
+            <div class="small-text" style="margin-top: 8px;">
+                Licence expires: 31 Dec 2025
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Header - Fixed -->
+        <header class="header">
+            <div class="header-left">
+                <h1>Settings</h1>
+                <div class="breadcrumb">Home > Settings > Licence</div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary">
+                    <span>📥</span>
+                    Export Licence Info
+                </button>
+                <button class="btn btn-primary" onclick="validateLicence()">
+                    <span>✓</span>
+                    Validate Licence
+                </button>
+            </div>
+        </header>
+
+        <!-- Settings Content -->
+        <div class="settings-container">
+            <!-- Settings Sidebar -->
+            <div class="settings-sidebar">
+                <div class="settings-nav-item">
+                    <span class="settings-nav-icon">⚡</span>
+                    <span>General</span>
+                </div>
+                <div class="settings-nav-item">
+                    <span class="settings-nav-icon">🔧</span>
+                    <span>Calculation Parameters</span>
+                </div>
+                <div class="settings-nav-item">
+                    <span class="settings-nav-icon">🔌</span>
+                    <span>Engine Integration</span>
+                </div>
+                <div class="settings-nav-item">
+                    <span class="settings-nav-icon">📤</span>
+                    <span>Export Options</span>
+                </div>
+                <div class="settings-nav-item">
+                    <span class="settings-nav-icon">🎨</span>
+                    <span>Appearance</span>
+                </div>
+                <div class="settings-nav-item active">
+                    <span class="settings-nav-icon">🔑</span>
+                    <span>Licence</span>
+                </div>
+                <div class="settings-nav-item">
+                    <span class="settings-nav-icon">🚀</span>
+                    <span>Advanced</span>
+                </div>
+            </div>
+
+            <!-- Licence Content -->
+            <div class="settings-content">
+                <!-- Licence Status Card -->
+                <div class="licence-status-card">
+                    <div class="status-icon">✓</div>
+                    <div class="status-info">
+                        <div class="status-title">Licence Active</div>
+                        <div class="status-subtitle">Your licence is valid until 31 December 2025</div>
+                    </div>
+                </div>
+
+                <!-- Client Information -->
+                <div class="licence-section">
+                    <h2 class="section-title">
+                        <span>🏢</span>
+                        Client Information
+                    </h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Organisation</div>
+                            <div class="info-value">Northern Power Distribution</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Client ID</div>
+                            <div class="info-value">NPD-2024-00142</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Registered To</div>
+                            <div class="info-value">John Doe</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">DNO Region</div>
+                            <div class="info-value">Northern England</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Licensed Modules -->
+                <div class="licence-section">
+                    <h2 class="section-title">
+                        <span>📦</span>
+                        Licensed Modules
+                    </h2>
+                    <div class="modules-list">
+                        <div class="module-item">
+                            <div class="module-icon">💡</div>
+                            <div>
+                                <div class="module-name">FCP Calculation Engine</div>
+                                <div class="small-text">Forward Cost Pricing methodology</div>
+                            </div>
+                            <div class="module-status">
+                                <span>✓</span> Active
+                            </div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-icon">🔌</div>
+                            <div>
+                                <div class="module-name">IPSA Integration</div>
+                                <div class="small-text">Power system analysis interface</div>
+                            </div>
+                            <div class="module-status">
+                                <span>✓</span> Active
+                            </div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-icon">📊</div>
+                            <div>
+                                <div class="module-name">Advanced Reporting</div>
+                                <div class="small-text">Custom report generation and templates</div>
+                            </div>
+                            <div class="module-status">
+                                <span>✓</span> Active
+                            </div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-icon">🔄</div>
+                            <div>
+                                <div class="module-name">Batch Processing</div>
+                                <div class="small-text">Multiple scenario calculations</div>
+                            </div>
+                            <div class="module-status">
+                                <span>✓</span> Active
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Licence Details -->
+                <div class="licence-section">
+                    <h2 class="section-title">
+                        <span>📋</span>
+                        Licence Details
+                    </h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Licence Type</div>
+                            <div class="info-value">Professional Edition</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Issue Date</div>
+                            <div class="info-value">1 January 2024</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Expiry Date</div>
+                            <div class="info-value">31 December 2025</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Support Level</div>
+                            <div class="info-value">Priority Support</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Licence Key Management -->
+                <div class="licence-section">
+                    <h2 class="section-title">
+                        <span>🔐</span>
+                        Licence Key Management
+                    </h2>
+                    
+                    <!-- System Information -->
+                    <div style="margin-bottom: 24px;">
+                        <div class="info-label" style="margin-bottom: 12px;">System Information for Licence Generation</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Machine ID</div>
+                                <div class="info-value" id="machineId">DESKTOP-UK4A2B9</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">MAC Address</div>
+                                <div class="info-value" id="macAddress">00:1B:44:11:3A:B7</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Tool Name</div>
+                                <div class="info-value">EDCM Tool v1.0</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Timestamp</div>
+                                <div class="info-value" id="currentTime">28/06/2025 10:30:45</div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-label" style="margin-top: 16px; margin-bottom: 8px;">Licensed Modules to Include</div>
+                        <div class="modules-checklist">
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked disabled>
+                                <span>FCP Calculation Engine</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked disabled>
+                                <span>IPSA Integration</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked disabled>
+                                <span>Advanced Reporting</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked disabled>
+                                <span>Batch Processing</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Key Actions -->
+                    <div class="key-actions">
+                        <button class="btn btn-primary" onclick="generateLicenceRequest()">
+                            <span>📄</span>
+                            Generate Licence Request File
+                        </button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('licenceFile').click()">
+                            <span>📁</span>
+                            Import Licence Key File
+                        </button>
+                    </div>
+                    
+                    <!-- Hidden file input -->
+                    <input type="file" id="licenceFile" class="hidden-input" accept=".lic,.key" onchange="handleFileSelect(event)">
+
+                    <!-- File Upload Area -->
+                    <div class="file-upload-area" id="uploadArea" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                        <div class="upload-icon">📎</div>
+                        <div class="upload-text">Drag and drop licence key file here</div>
+                        <div class="upload-hint">or click "Import Licence Key File" to browse</div>
+                    </div>
+
+                    <!-- Validation Result (hidden by default) -->
+                    <div id="validationResult" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update current time
+        function updateCurrentTime() {
+            const now = new Date();
+            const formattedTime = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB');
+            document.getElementById('currentTime').textContent = formattedTime;
+        }
+        
+        // Update time every second
+        setInterval(updateCurrentTime, 1000);
+        updateCurrentTime();
+
+        // Generate licence request file
+        function generateLicenceRequest() {
+            const systemInfo = {
+                version: "1.0",
+                requestType: "licence_generation",
+                timestamp: new Date().toISOString(),
+                systemInfo: {
+                    machineId: document.getElementById('machineId').textContent,
+                    macAddress: document.getElementById('macAddress').textContent,
+                    toolName: "EDCM Tool v1.0",
+                    requestTime: document.getElementById('currentTime').textContent
+                },
+                client: {
+                    organisation: "Northern Power Distribution",
+                    clientId: "NPD-2024-00142",
+                    registeredTo: "John Doe",
+                    dnoRegion: "Northern England"
+                },
+                requestedModules: [
+                    "FCP_CALCULATION_ENGINE",
+                    "IPSA_INTEGRATION",
+                    "ADVANCED_REPORTING",
+                    "BATCH_PROCESSING"
+                ],
+                licenceType: "Professional Edition",
+                supportLevel: "Priority Support"
+            };
+
+            const blob = new Blob([JSON.stringify(systemInfo, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'licence-request-' + systemInfo.client.clientId + '-' + Date.now() + '.req';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showValidationResult('Licence request file generated. Please send this file to your Anthropic representative.', 'success');
+        }
+
+        // File handling
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processLicenceFile(file);
+            }
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('uploadArea').classList.remove('active');
+            
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                processLicenceFile(file);
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('uploadArea').classList.add('active');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('uploadArea').classList.remove('active');
+        }
+
+        function processLicenceFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const licenceData = JSON.parse(e.target.result);
+                    validateLicenceData(licenceData);
+                } catch (error) {
+                    showValidationResult('Invalid licence file format', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function validateLicenceData(data) {
+            // Validate machine information
+            const currentMachineId = document.getElementById('machineId').textContent;
+            const currentMacAddress = document.getElementById('macAddress').textContent;
+            
+            if (data.systemInfo && data.systemInfo.machineId === currentMachineId && 
+                data.systemInfo.macAddress === currentMacAddress) {
+                
+                // Check expiry date
+                const currentDate = new Date();
+                const expiryDate = new Date(data.licence.expiryDate);
+                
+                if (expiryDate > currentDate) {
+                    showValidationResult('Licence validated successfully. Valid until ' + data.licence.expiryDate, 'success');
+                    // Update UI to show new licence is active
+                    updateLicenceStatus(data);
+                } else {
+                    showValidationResult('Licence has expired on ' + data.licence.expiryDate, 'error');
+                }
+            } else {
+                showValidationResult('Licence is not valid for this machine', 'error');
+            }
+        }
+
+        function updateLicenceStatus(licenceData) {
+            // Update the status card
+            const statusCard = document.querySelector('.licence-status-card');
+            const statusInfo = statusCard.querySelector('.status-subtitle');
+            statusInfo.textContent = 'Your licence is valid until ' + new Date(licenceData.licence.expiryDate).toLocaleDateString('en-GB', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            // Update user section expiry date
+            const userExpiry = document.querySelector('.user-section .small-text:last-child');
+            userExpiry.textContent = 'Licence expires: ' + new Date(licenceData.licence.expiryDate).toLocaleDateString('en-GB', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function validateLicence() {
+            // Simulate licence validation
+            showValidationResult('Licence is valid and active', 'success');
+        }
+
+        function showValidationResult(message, type) {
+            const resultDiv = document.getElementById('validationResult');
+            resultDiv.className = 'validation-result ' + type;
+            resultDiv.innerHTML = `
+                <span>${type === 'success' ? '✓' : '✗'}</span>
+                <span>${message}</span>
+            `;
+            resultDiv.style.display = 'flex';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

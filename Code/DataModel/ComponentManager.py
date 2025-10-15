@@ -4,15 +4,10 @@
 
 
 class ComponentBaseTemplate:
-    
     m_oEngineDataModelInterface = None
-    
-
     def __init__(self):
         self.ON = True
         self.Results = True
-        
-
     def setdatamodelcomponentstatus(self, status, bUpdateEngine=True):
         "By default, sets the datamodel component status to ON or OFF based on the status parameter. If bUpdateEngine is True, it will also update the engine status."
         self.ON = bool(status)
