@@ -27,7 +27,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
             for key, value in kwargs.items():
                 if key in loadflowsettings:
                     self.powerfactoryloadflowobject.SetAttribute(loadflowsettings[key], value)
-        
         ierr = self.powerfactoryloadflowobject.Execute()
         if ierr != 0:
             gbl.Msg.add_error("PowerFactory Load Flow Analysis failed with error code: {}".format(ierr))
@@ -35,6 +34,19 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
         if gbl.VERSION_TESTING:
             gbl.Msg.add_information("PowerFactory Load Flow Analysis completed successfully.")
         return True
+    def getallloadflowresults(self):
+        """This method retrieves the results of the load flow analysis."""
+        bOK = False
+        bOK = self.getandupdatebusbarloadflowresults()
+        if bOK:
+            bOK = self.getandupdatelineloadflowresults()
+        if bOK:
+            bOK = self.getandupdatetransformerflowresults()
+        if bOK:
+            bOK = self.getandupdateloadflowgeneratorresults()
+        if bOK:
+            bOK = self.getandupdateloadsloadflowresults()
+        return bOK
     #__________________________BUSBAR LOAD FLOW RESULTS METHODS________________________
     def getandupdatebusbarloadflowresults(self):
         """This method retrieves the results of the load flow analysis. It functions as an aggregator for the busbar load flow results."""
@@ -117,6 +129,8 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
                 bus2_id = gbl.DataModelInterfaceContainer.standardize_terminal_id(terminal2)
             if name not in gbl.DataModelInterfaceContainer.branch_dictionary or bus1_id not in gbl.DataModelInterfaceContainer.terminal_dictionary or bus2_id not in gbl.DataModelInterfaceContainer.terminal_dictionary:
                 continue
+            if line.outserv:
+                continue
             bus1_pu_voltage = line.GetAttribute("n:u:bus1")
             bus2_pu_voltage = line.GetAttribute("n:u:bus2")
             bus1_MW = line.GetAttribute("m:P:bus1")
@@ -176,6 +190,8 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
                 bus1_id = gbl.DataModelInterfaceContainer.standardize_terminal_id(terminal1)
                 bus2_id = gbl.DataModelInterfaceContainer.standardize_terminal_id(terminal2)
             if name not in gbl.DataModelInterfaceContainer.branch_dictionary or bus1_id not in gbl.DataModelInterfaceContainer.terminal_dictionary or bus2_id not in gbl.DataModelInterfaceContainer.terminal_dictionary:
+                continue
+            if transformer.outserv:
                 continue
             bus1_pu_voltage = transformer.GetAttribute("n:u:bushv")
             bus2_pu_voltage = transformer.GetAttribute("n:u:buslv")

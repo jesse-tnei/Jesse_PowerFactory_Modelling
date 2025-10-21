@@ -173,6 +173,7 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                         gbl.DataModelManager.Branch_TAB.append(transformer_datamodel)
         gbl.Msg.AddRawMessage(f"Total transformers added to DataModel: {len(gbl.DataModelManager.Branch_TAB) - initialbranchtablength}")
         return bOK
+    
     def gettransformervvaluesfromnetwork(self, transformer_datamodel):
         """Retrieves transformer values from the PowerFactory network."""
         bOK = True
@@ -402,4 +403,12 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                     ext_grid_item.ON = ON
                     ext_grid_item.pf = pf
                     ext_grid_item.BusType = bustype
+        return bOK
+    def switchbranchstatus(self, branch, status):
+        """Switches the status of a branch in the PowerFactory network."""
+        bOK = True
+        if bOK:
+            branch_obj = self.branch_dictionary.get(branch.BranchID)
+            if branch_obj:
+                branch_obj.SetAttribute("outserv", status)
         return bOK
