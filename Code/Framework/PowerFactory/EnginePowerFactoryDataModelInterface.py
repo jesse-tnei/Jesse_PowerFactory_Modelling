@@ -5,13 +5,16 @@ from Code.Framework.BaseTemplates.EngineDataModelInterfaceContainer import Engin
 class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
     def __init__(self):
         EngineDataModelInterfaceContainer.__init__(self)
-        self.terminal_dictionary = {}  # Dictionary to hold terminal IDs and their corresponding bus IDs
-        self.load_dictionary = {}  # Dictionary to hold load IDs and their corresponding bus IDs
-        self.generator_dictionary = {}  # Dictionary to hold generator IDs and their corresponding bus IDs
-        self.branch_dictionary = {}  # Dictionary to hold branch IDs and their corresponding bus IDs
+        self.terminal_dictionary = {}
+        self.load_dictionary = {}
+        self.line_dictionary = {}
+        self.generator_dictionary = {}
+        self.branch_dictionary = {}
+        self.transformer_dictionary = {}
+        self.external_grid_dictionary = {}
     #____________________OVERALL DATAMODELMANAGER LOADING METHODS________________________# 
     def passelementsfromnetworktodatamodelmanager(self):
-        """This method retrieves elements from the network and passes them to the DataModelManager."""
+        """Retrieves elements from the network and passes them to the DataModelManager."""
         bOK = True
         if bOK:
             bOK = self.getbusbarsfromnetwork()
@@ -173,7 +176,6 @@ class EnginePowerFactoryDataModelInterface(EngineDataModelInterfaceContainer):
                         gbl.DataModelManager.Branch_TAB.append(transformer_datamodel)
         gbl.Msg.AddRawMessage(f"Total transformers added to DataModel: {len(gbl.DataModelManager.Branch_TAB) - initialbranchtablength}")
         return bOK
-    
     def gettransformervvaluesfromnetwork(self, transformer_datamodel):
         """Retrieves transformer values from the PowerFactory network."""
         bOK = True

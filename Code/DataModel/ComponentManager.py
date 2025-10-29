@@ -82,19 +82,14 @@ class Busbar(ComponentBaseTemplate):
         self.VangDeg = 0.0
         self.VangRad = 0.0
         self.LoadFlowResults = None
-        
         #short circuit attributes
         self.initialshortcircuitcurrent = 0.0
         self.initialshortcircuitmva = 0.0
-        
         self.peakshortcircuitcurrent = 0.0
-        
         self.breakingshortcircuitcurrent = 0.0
         self.breakingshortcircuitmva = 0.0
-        
         self.steadystateshortcircuitcurrent = 0.0
         self.steadystateshortcircuitmva = 0.0
-        
         self.realshortcircuitimpedance = 0.0
         self.imaginaryshortcircuitimpedance = 0.0
 
@@ -377,34 +372,27 @@ class Branch(ComponentBaseTemplate):
             return f"{self.BranchID} ({self.BusID1}, {self.BusID2}, {self.BusID3})"
         else:
             return f"{self.BranchID} ({self.BusID1}, {self.BusID2})"
-        
-        
     def getdatamodelcomponentfromengine(self):
         """Retrieves the branch component from the engine."""
         bOK = False
         if self.BasicEngineModelUpdater:
             bOK = self.BasicEngineModelUpdater.getbranchfromengine(self)
         return bOK
-    
     def setdatamodelcomponenttoengine(self):
         """Sets the branch component to the engine."""
         bOK = False
         if self.BasicEngineModelUpdater:
             bOK = self.BasicEngineModelUpdater.setbranchtoengine(self)
         return bOK
-    
     def setdatamodelcomponentstatustoengine(self):
         """Updates the engine with the branch status."""
         bOK = False
         if self.BasicEngineModelUpdater:
             bOK = self.BasicEngineModelUpdater.updatebranchstatus(self)
         return bOK
-    
     def getdatamodelcomponentstatusfromengine(self):
         """Retrieves the branch status from the engine."""
         bOK = False
         if self.BasicEngineModelUpdater:
             bOK = self.BasicEngineModelUpdater.getbranchstatusfromengine(self)
         return bOK
-    
-    

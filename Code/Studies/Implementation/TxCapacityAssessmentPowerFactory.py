@@ -5,7 +5,7 @@ from Code.Studies.BaseTemplates.TxCapacityAssessmentBase import TxCapacityAssess
 class TxCapacityAssessmentPowerFactory(TxCapacityAssessmentBase):
     def __init__(self):
         TxCapacityAssessmentBase.__init__(self)
-        self.msg = gbl.Msg
+.        self.msg = gbl.Msg
     def initializestudy(self):
         if not gbl.EngineContainer:
             raise RuntimeError("The PowerFactory engine has not been initialized yet.")

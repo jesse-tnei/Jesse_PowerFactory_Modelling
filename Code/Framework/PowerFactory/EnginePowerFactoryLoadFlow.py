@@ -231,7 +231,7 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
         """This method retrieves the transformer load flow results and updates the data tab."""
         bOK = True
         if gbl.VERSION_TESTING:
-            gbl.Msg.add_information("Retrieving transformer load flow results...")
+            gbl.Msg.add_information("Retrieving transformer load flow results")
             bOK = self.gettransformerflowresultsfromnetwork()
         if not bOK:
             gbl.Msg.add_error("Failed to retrieve transformer load flow results data from the network.")

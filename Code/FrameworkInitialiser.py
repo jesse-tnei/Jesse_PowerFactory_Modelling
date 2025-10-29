@@ -5,15 +5,20 @@ import threading
 
 from Code import GlobalEngineRegistry as gbl
 
+
 class FrameworkInitialiser:
     """Framework initialization and management class"""
 
     def __init__(self):
         self.isinitialized = False
+        self.webinitialized = False
+        self.backendinitialized = False
+        self.selected_engine = None
+        self.bOK = False
         self.engine = None
         self._configureapplicationsettings()
 
-    def initializefullproduct(self, engine=None, bOK=False):
+    def initializeproduct(self, engine=None, webinterfaceonly=False):
         """Initialize all framework components"""
         if self.isinitialized:
             print("Framework already initialized!")
@@ -22,39 +27,65 @@ class FrameworkInitialiser:
             # Priority order: provided params > engine info > defaults
 
             # Create messaging instance first so it can be used globally
-            bOK = self.initialise_messaging()
-            if bOK:
-                bOK = self.initialisestudyengine(engine)
-            if bOK:
-                bOK = self.initialisedatamodelinterface()
-            if bOK:
-                bOK = self.configurecomponenttemplates()
-            if bOK:
-                bOK = self.initialisedatafactory()
-            if bOK:
-                bOK = self.initialisedatamodelmanager()
-            if bOK:
-                bOK = self.initialisestudysettings()
-            if bOK:
-                bOK = self.initialisewebinterface()
-            if bOK:
-                bOK = self.startwebinterface()
-            if bOK:
-                self.isinitialized = True
+            self.bOK = self.initialise_messaging()
+            if self.bOK:
+                self.bOK = self.initialisestudysettings()
+            if webinterfaceonly:
+                #web interface only
+                if self.bOK:
+                    self.bOK = self.initialisewebinterface()
+                if self.bOK:
+                    self.bOK = self.startwebinterface()
+                if self.bOK:
+                    self.webinitialized = True
+            else:
+                if self.bOK:
+                    self.bOK = self.initialize_backend(engine)
+                if self.bOK:
+                    self.bOK = self.initialisewebinterface()
+                if self.bOK:
+                    self.bOK = self.startwebinterface()
+                if self.bOK:
+                    self.isinitialized = True
         except Exception as e:
             print(f"Failed to initialize framework: {e}")
             raise
 
-    def initialize_web_only(self, bOK=False):
+    def initialize_web_only(self):
         """Initialize only components needed for web interface"""
-        bOK = self.initialise_messaging()
-        if bOK:
-            bOK = self.initialisestudysettings()
-        if bOK:
-            bOK = self.initialisewebinterface()
-        if bOK:
-            bOK = self.startwebinterface()
-        return bOK
+        self.bOK = self.initialise_messaging()
+        if self.bOK:
+            self.bOK = self.initialisestudysettings()
+        if self.bOK:
+            self.bOK = self.initialisewebinterface()
+        if self.bOK:
+            self.bOK = self.startwebinterface()
+        return self.bOK
+    def initialize_backend(self, engine_type = None):
+        """Initialize only components needed for backend"""
+        try:
+            if self.backendinitialized:
+                gbl.Msg.AddInfo("Backend already initialized!")
+                return
+            self.bOK = self.initialisestudyengine(engine_type)
+            if not self.bOK:
+                return False
+            if self.bOK:
+                self.bOK = self.initialisedatamodelinterface()
+            if self.bOK:
+                self.bOK = self.configurecomponenttemplates()
+            if self.bOK:
+                self.bOK = self.initialisedatafactory()
+            if self.bOK:
+                self.bOK = self.initialisedatamodelmanager()
+            if self.bOK:
+                self.backendinitialized = True
+                self.selected_engine = engine_type
+                gbl.Msg.AddInfo("Backend initialized with engine: " + engine_type)
+            return self.bOK
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to initialize backend: {e}")
+            return False
 
     def initialise_messaging(self):
         """Initialize messaging"""
@@ -113,7 +144,9 @@ class FrameworkInitialiser:
                 host = getattr(gbl.AppSettingsContainer, 'WebInterfaceHost', 'localhost')
                 port = getattr(gbl.AppSettingsContainer, 'WebInterfacePort', 5000)
                 print(f"DEBUG: host={host}, port={port}")
-                web_thread = threading.Thread(target=gbl.WebContainer, args=(host, port), daemon=True)
+                web_thread = threading.Thread(target=gbl.WebContainer,
+                                              args=(host, port),
+                                              daemon=True)
                 # print(f"DEBUG: Thread created: {web_thread}")
                 web_thread.start()
                 print(f"DEBUG: Thread started, is_alive: {web_thread.is_alive()}")
@@ -127,16 +160,17 @@ class FrameworkInitialiser:
             print(f"DEBUG: Exception in startwebinterface: {e}")
             gbl.Msg.AddError(f"Failed to start web interface: {e}")
             return False
-    def initialisestudyengine(self, engine=None, engine_type="powerfactory", bOK=False, **kwargs):
+
+    def initialisestudyengine(self, engine=None, engine_type="ipsa", **kwargs):
         """Initialize study engine. Defaults to PowerFactory if not defined"""
         try:
             if engine is None:
-                if engine_type == "powerfactory":
+                if gbl.StudySettingsContainer.powerfactory:
                     from Code.Framework.PowerFactory.EnginePowerFactory import EnginePowerFactory
                     engine = EnginePowerFactory(preferred_version=2024)
-                elif engine_type == "psse":
-                    gbl.Msg.AddError("PSS/E engine not yet implemented")
-                    return False
+                elif gbl.StudySettingsContainer.ipsa:
+                    from Code.Framework.IPSA.EngineIPSA import EngineIPSA
+                    engine = EngineIPSA()
                 else:
                     gbl.Msg.AddError(f"Unsupported engine type: {engine_type}")
                     return False
@@ -155,12 +189,17 @@ class FrameworkInitialiser:
             gbl.Msg.AddError(f"Failed to initialize study engine: {e}")
             return False
 
-    def initialisedatamodelinterface(self):
+    def initialisedatamodelinterface(self, engine=None, engine_type="powerfactory"):
         """Initialize data model interface"""
         try:
-            from Code.Framework.PowerFactory.EnginePowerFactoryDataModelInterface import EnginePowerFactoryDataModelInterface as PowerFactoryDataModelInterface
-            gbl.DataModelInterfaceContainer = PowerFactoryDataModelInterface()
-            return True
+            if gbl.StudySettingsContainer.powerfactory:
+                from Code.Framework.PowerFactory.EnginePowerFactoryDataModelInterface import EnginePowerFactoryDataModelInterface as PowerFactoryDataModelInterface
+                gbl.DataModelInterfaceContainer = PowerFactoryDataModelInterface()
+                return True
+            if gbl.StudySettingsContainer.ipsa:
+                from Code.Framework.IPSA.EngineIPSADataModelInterface import EngineIPSADataModelInterface as EngineIPSADataModelInterface
+                gbl.DataModelInterfaceContainer = EngineIPSADataModelInterface()
+                return True
         except Exception as e:
             gbl.Msg.AddError(f"Failed to initialize data model interface: {e}")
             return False
@@ -187,6 +226,8 @@ class FrameworkInitialiser:
     def _initialise_engine_modules(self, engine_type):
         if engine_type == "powerfactory":
             return self._powerfactorymodules()
+        if engine_type == "ipsa":
+            return self._ipsamodules()
         else:
             gbl.Msg.AddError(f"Unsupported engine type: {engine_type}")
             return False
@@ -205,6 +246,17 @@ class FrameworkInitialiser:
             gbl.Msg.AddError(f"Failed to initialize PowerFactory modules: {e}")
             return False
 
+    def _ipsamodules(self):
+        """Initialize PowerFactory modules"""
+        try:
+            # Initialize Load Flow Container
+            from Code.Framework.IPSA.EngineIPSALoadFlow import EngineIPSALoadFlow
+            gbl.EngineLoadFlowContainer = EngineIPSALoadFlow()
+            return True
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to initialize PowerFactory modules: {e}")
+            return False
+
     def initialisedatamodelmanager(self):
         try:
             from Code.DataModel.DataModelManager import DataModelManager
@@ -214,20 +266,53 @@ class FrameworkInitialiser:
         except Exception as e:
             gbl.Msg.AddError(f"Failed to initialize data model manager: {e}")
             return False
+    def can_initialize_backend(self):
+        """Check if backend can be initialized"""
+        return self.webinitialized and not self.backendinitialized
+
+    def is_backend_ready(self):
+        """Check if backend is ready for operations"""
+        return self.backendinitialized and self.selected_engine is not None
+
+    def get_available_engines(self):
+        """Get list of available engines"""
+        engines = []
+        try:
+            # Check PowerFactory availability
+            if gbl.StudySettingsContainer.powerfactory:
+                engines.append({"name": "PowerFactory", "type": "powerfactory", "available": True})
+            else:
+                engines.append({"name": "PowerFactory", "type": "powerfactory", "available": False})
+            # Check IPSA availability  
+            if gbl.StudySettingsContainer.ipsa:
+                engines.append({"name": "IPSA", "type": "ipsa", "available": True})
+            else:
+                engines.append({"name": "IPSA", "type": "ipsa", "available": False})
+        except Exception as e:
+            gbl.Msg.AddError(f"Error checking engine availability: {e}")
+        return engines
+
+    def get_framework_status(self):
+        """Get detailed framework status"""
+        return {
+            'web_initialized': self.webinitialized,
+            'backend_initialized': self.backendinitialized,
+            'selected_engine': self.selected_engine,
+            'available_engines': self.get_available_engines(),
+            'can_initialize_backend': self.can_initialize_backend(),
+            'is_ready': self.is_backend_ready()
+        }
 
     def cleanup(self):
         """Clean up framework resources"""
         if not self.isinitialized:
             return
-
         try:
             if gbl.Msg:
                 gbl.Msg.close_log_files()
                 gbl.Msg = None
-
             self.isinitialized = False
             print("Framework cleaned up successfully!")
-
         except Exception as e:
             print(f"Error during cleanup: {e}")
 

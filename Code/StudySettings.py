@@ -1,6 +1,9 @@
 class StudySettings:
 
     def __init__(self):
+        self.powerfactory = False
+        self.ipsa = True
+        self.ipsafilename = r"C:\Users\solomonj\Documents\Personal\PDev\ProgrammingProjects\Jesse_PowerFactory_Modelling\Refinery.i2f"
         self.DoLoadFlow = True
         self.DoShortCircuit = False
         self.DoHarmonics = False
