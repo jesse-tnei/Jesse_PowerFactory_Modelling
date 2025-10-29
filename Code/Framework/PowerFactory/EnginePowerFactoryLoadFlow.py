@@ -14,10 +14,19 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
         self.loadflowresultsdata = []  # List to hold load flow results data
 
     #__________________________ENGINE POWER FACTORY LOAD FLOW METHODS________________________
-    def runloadflow(self):
+    def runloadflow(self, **kwargs):
         """This method runs the load flow analysis."""
+        loadflowsettings = {
+            'CalculationMethod': 'iopt_net', #0 ac loadflow balanced, 1 ac load flow unbalanced, 2 dc loadflow
+            'AutomaticPhaseShifterTapAdjustment': 'iPST_at', #0 inactive, 1 active
+            'AutomaticTapAdjustmentTransformer':'iopt_at' #0 inactive, 1 active
+        }
         if gbl.VERSION_TESTING:
             gbl.Msg.add_information("Running PowerFactory Load Flow Analysis...")
+        if self.powerfactoryloadflowobject:
+            for key, value in kwargs.items():
+                if key in loadflowsettings:
+                    self.powerfactoryloadflowobject.SetAttribute(loadflowsettings[key], value)
         ierr = self.powerfactoryloadflowobject.Execute()
         if ierr != 0:
             gbl.Msg.add_error("PowerFactory Load Flow Analysis failed with error code: {}".format(ierr))
@@ -25,7 +34,19 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
         if gbl.VERSION_TESTING:
             gbl.Msg.add_information("PowerFactory Load Flow Analysis completed successfully.")
         return True
-    
+    def getallloadflowresults(self):
+        """This method retrieves the results of the load flow analysis."""
+        bOK = False
+        bOK = self.getandupdatebusbarloadflowresults()
+        if bOK:
+            bOK = self.getandupdatelineloadflowresults()
+        if bOK:
+            bOK = self.getandupdatetransformerflowresults()
+        if bOK:
+            bOK = self.getandupdateloadflowgeneratorresults()
+        if bOK:
+            bOK = self.getandupdateloadsloadflowresults()
+        return bOK
     #__________________________BUSBAR LOAD FLOW RESULTS METHODS________________________
     def getandupdatebusbarloadflowresults(self):
         """This method retrieves the results of the load flow analysis. It functions as an aggregator for the busbar load flow results."""
@@ -46,7 +67,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
                 gbl.Msg.add_error("Failed to update busbar load flow results data tab.")
                 return False
         return True
-    
     def getbusbarloadflowresultsdatafromnetwork(self):
         """This method retrieves the busbar data from the load flow analysis and saves it in a temporary list."""
         busbars = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("*.ElmTerm")
@@ -62,7 +82,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
                 "angle": angle
             })
         return self.busbarloadflowresultsdata
-    
     def setbusbarloadflowresultsdatatab(self):
         """This method takes in the loaded busbar load flow results data and updates the busbar load flow results data tab inside the datamodelmanager."""
         if not self.busbarloadflowresultsdata:
@@ -77,7 +96,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
             busbar.angle = bus["angle"]
             busbar.LoadFlowResults = True
         return True
-    
     #__________________________LINE LOAD FLOW METHODS________________________
     def getandupdatelineloadflowresults(self):
         """This method retrieves the line load flow results and updates the data tab."""
@@ -101,7 +119,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
     def getlineloadflowresultsfromnetwork(self):
         """This method retrieves the line load flow results from the network."""
         lines = gbl.EngineContainer.m_pFApp.GetCalcRelevantObjects("*.ElmLne")
-        
         for line in lines:
             name = line.GetAttribute("loc_name")
             terminal1 = line.GetAttribute("bus1")
@@ -111,6 +128,8 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
                 bus1_id = gbl.DataModelInterfaceContainer.standardize_terminal_id(terminal1)
                 bus2_id = gbl.DataModelInterfaceContainer.standardize_terminal_id(terminal2)
             if name not in gbl.DataModelInterfaceContainer.branch_dictionary or bus1_id not in gbl.DataModelInterfaceContainer.terminal_dictionary or bus2_id not in gbl.DataModelInterfaceContainer.terminal_dictionary:
+                continue
+            if line.outserv:
                 continue
             bus1_pu_voltage = line.GetAttribute("n:u:bus1")
             bus2_pu_voltage = line.GetAttribute("n:u:bus2")
@@ -158,7 +177,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
             branch.oBus2.MVA = line["bus2MVA"]
             branch.oBus1.LoadFlowResults = branch.oBus2.LoadFlowResults = branch.Results = True
         return True
-    
     #__________________________TRANSFORMER LOAD FLOW RESULTS METHODS________________________
     def gettransformerflowresultsfromnetwork(self):
         """This method retrieves the transformer load flow results."""
@@ -173,6 +191,8 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
                 bus2_id = gbl.DataModelInterfaceContainer.standardize_terminal_id(terminal2)
             if name not in gbl.DataModelInterfaceContainer.branch_dictionary or bus1_id not in gbl.DataModelInterfaceContainer.terminal_dictionary or bus2_id not in gbl.DataModelInterfaceContainer.terminal_dictionary:
                 continue
+            if transformer.outserv:
+                continue
             bus1_pu_voltage = transformer.GetAttribute("n:u:bushv")
             bus2_pu_voltage = transformer.GetAttribute("n:u:buslv")
             loading = transformer.GetAttribute("c:loading")
@@ -186,9 +206,7 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
                 "bus1_pu_voltage": bus1_pu_voltage,
                 "bus2_pu_voltage": bus2_pu_voltage
             })
-            
         return True
-    
     def settransformerflowresultstodatatab(self):
         """This method updates the transformer load flow results data tab."""
         if not self.txloadflowresultsdata:
@@ -208,14 +226,12 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
             if branch.oBus2.LoadFlowResults is None:
                 branch.oBus2.voltage = transformer["bus2_pu_voltage"]
                 branch.oBus2.LoadFlowResults = branch.Results = True
-                
         return True
-    
     def getandupdatetransformerflowresults(self):
         """This method retrieves the transformer load flow results and updates the data tab."""
         bOK = True
         if gbl.VERSION_TESTING:
-            gbl.Msg.add_information("Retrieving transformer load flow results...")
+            gbl.Msg.add_information("Retrieving transformer load flow results")
             bOK = self.gettransformerflowresultsfromnetwork()
         if not bOK:
             gbl.Msg.add_error("Failed to retrieve transformer load flow results data from the network.")
@@ -230,7 +246,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
                 gbl.Msg.add_error("Failed to update transformer load flow results data tab.")
                 return False
         return True
-    
     #__________________________GENERATOR LOAD FLOW RESULTS METHODS________________________
     def getgeneratorloadflowresultsfromnetwork(self):
         """This method retrieves the generator load flow results from the network."""
@@ -262,7 +277,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
                 "powerfactor": powerfactor
             })
         return self.generatorloadflowresultsdata
-    
     def setgeneratorloadflowresultstodatatab(self):
         """This method updates the generator load flow results data tab."""
         if not self.generatorloadflowresultsdata:
@@ -282,7 +296,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
             gen.parallelmachines = generator["parallel_machines"]
             gen.LoadFlowResults = True
         return True
-    
     def getandupdateloadflowgeneratorresults(self):
         """This method retrieves the generator load flow results and updates the data tab."""
         bOK = True
@@ -302,7 +315,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
                 gbl.Msg.add_error("Failed to update generator load flow results data tab.")
                 return False
         return True
-    
     #__________________________LOAD LOAD FLOW RESULTS METHODS________________________
     def getloadloadflowresultsfromnetwork(self):
         """This method retrieves the load load flow results from the network."""
@@ -348,7 +360,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
             load_obj.powerFactor = load["powerfactor"]
             load_obj.LoadFlowResults = True
         return True
-    
     def getandupdateloadsloadflowresults(self):
         """This method retrieves the load flow results and updates the data tab."""
         bOK = True
@@ -368,7 +379,6 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
                 gbl.Msg.add_error("Failed to update loads load flow results data tab.")
                 return False
         return True
-    
     #__________________________LOAD FLOW REPORTS________________________
     def getloadflowresultsdiagramfromnetwork(self):
 
@@ -390,6 +400,3 @@ class EnginePowerFactoryLoadFlow(BaseEngineLoadFlowContainer):
             report_obj.Export(r"C:\path\to\output\report.pdf", 0)  # 0 = export directly, 1 = show dialog
         else:
             gbl.Msg.add_error("Report object not found for export.")
-    
-        
-

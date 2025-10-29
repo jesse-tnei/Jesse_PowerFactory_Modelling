@@ -60,7 +60,7 @@ class EngineContainer:
         self.msg.adderror("ExportNetworkModel not implemented in base class")
         return False
 
-    def opennetwork(self, strNetworkName):
+    def opennetwork(self, **kwargs):
         """Opens the specified network"""
         self.msg.adderror("OpenNetwork not implemented in base class")
         return False

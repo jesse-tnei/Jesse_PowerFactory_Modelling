@@ -8,7 +8,6 @@ class EngineLoadFlowContainer:
     def runloadflow(self):
         """This method runs the load flow analysis."""
         raise NotImplementedError("This method should be implemented by subclasses.")
-    
     def getandupdatebusbarloadflowresults(self):
         """This method retrieves the busbar results from the load flow analysis."""
         raise NotImplementedError("This method should be implemented by subclasses.")

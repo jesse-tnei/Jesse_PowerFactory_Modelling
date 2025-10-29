@@ -119,9 +119,15 @@ class EnginePowerFactory(EngineContainer):
             self.m_oMsg.AddInfo(f"PowerFactory {version} environment loaded successfully")
         except ImportError as e:
             self.m_oMsg.AddError(f"Failed to load PowerFactory environment: {e}")
-    def opennetwork(self, strNetworkName: str):
+    def opennetwork(self, **kwargs):
         """Open a PowerFactory network by name"""
-        return self.activatepowerfactorynetwork(strNetworkName)
+        bOK = False
+        strNetworkName = kwargs.get("projectname", None)
+        strStudyCaseName = kwargs.get("studycasename", None)
+        bOK = self.activatepowerfactorynetwork(strNetworkName)
+        if bOK:
+            bOK = self.activatepowerfactorystudycase(strStudyCaseName)
+        return bOK
 
     def activatepowerfactorynetwork(self, network_name: str):
         """Activate a PowerFactory network by name"""
