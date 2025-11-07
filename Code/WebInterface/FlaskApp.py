@@ -1,15 +1,57 @@
+
 import os
 import sys
 from flask import Flask, render_template, jsonify, request
-from flask_socketio import SocketIO, emit
 
-# Add the parent directory to Python path to import framework modules
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+
+
+# Add the workspace root and Code directory to Python path so 'Code' and its modules are importable
+workspace_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+code_dir = os.path.join(workspace_root, 'Code')
+if workspace_root not in sys.path:
+    sys.path.insert(0, workspace_root)
+if code_dir not in sys.path:
+    sys.path.insert(0, code_dir)
 
 app = Flask(__name__)
 
+from Code import FrameworkInitialiser as f_init
+from Code import GlobalEngineRegistry as gbl
 # Global framework instance
 framework_instance = None
+
+@app.route('/api/open-powerfactory-network', methods=['POST'])
+def open_powerfactory_network():
+    global framework_instance
+    data = request.get_json()
+    projectname = data.get('projectname')
+    studycasename = data.get('studycasename')
+    try:
+        # Initialize framework if not already done
+        if framework_instance is None:
+            framework_instance = f_init.FrameworkInitialiser()
+            framework_instance.initializeproduct(webinterfaceonly=True)
+            gbl.Msg.DisplayWelcomeMessage()
+        print('DEBUG: After initializeproduct, StudySettingsContainer:', gbl.StudySettingsContainer)
+        print('DEBUG: After initializeproduct, EngineContainer:', gbl.EngineContainer)
+        # Ensure PowerFactory flag is set before backend initialization
+        if hasattr(gbl, 'StudySettingsContainer') and gbl.StudySettingsContainer:
+            gbl.StudySettingsContainer.powerfactory = True
+            gbl.StudySettingsContainer.ipsa = False
+        print('DEBUG: Before backend init, StudySettingsContainer:', gbl.StudySettingsContainer)
+        print('DEBUG: Before backend init, EngineContainer:', gbl.EngineContainer)
+        # Always initialize backend for PowerFactory before opening network
+        framework_instance.initialize_backend("powerfactory")
+        print('DEBUG: After backend init, StudySettingsContainer:', gbl.StudySettingsContainer)
+        print('DEBUG: After backend init, EngineContainer:', gbl.EngineContainer)
+        gbl.EngineContainer.opennetwork(projectname=projectname, studycasename=studycasename)
+        gbl.DataModelInterfaceContainer.passelementsfromnetworktodatamodelmanager()
+        return jsonify({'success': True, 'message': 'Network opened successfully'})
+    except Exception as e:
+        import traceback
+        print('DEBUG: Exception occurred:', traceback.format_exc())
+        return jsonify({'success': False, 'message': f'Failed to open network: {str(e)}'})
 
 
 @app.route('/')

@@ -1,3 +1,42 @@
+<!-- PowerFactory Workflow Modal -->
+<div class="modal fade" id="pf-advanced-settings-modal" tabindex="-1" aria-labelledby="pfAdvancedSettingsLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: rgba(30,30,40,0.85); border-radius: 1.2rem; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-white" id="pfAdvancedSettingsLabel"><i class="bi-sliders me-2"></i>Advanced Load Flow Settings</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="pf-advanced-settings-form">
+          <div class="mb-3">
+            <label for="pf-calculation-method" class="form-label text-white">Calculation Method</label>
+            <select class="form-select" id="pf-calculation-method">
+              <option value="0">Standard</option>
+              <option value="1">Newton-Raphson</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="pf-phase-shifter" class="form-label text-white">Automatic Phase Shifter Tap Adjustment</label>
+            <select class="form-select" id="pf-phase-shifter">
+              <option value="0">Disabled</option>
+              <option value="1">Enabled</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="pf-transformer-tap" class="form-label text-white">Automatic Tap Adjustment Transformer</label>
+            <select class="form-select" id="pf-transformer-tap">
+              <option value="0">Disabled</option>
+              <option value="1" selected>Enabled</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-primary" id="pf-advanced-settings-save">Save & Run Load Flow</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -436,16 +475,18 @@
                   </div>
                 </div>
               </div>
-
-              <!-- Analysis Progress -->
-              <div class="step-container d-none" id="step-analysis-progress">
-                <div class="card">
-                  <div class="card-body text-center">
-                    <div class="spinner-border text-primary mb-3" role="status">
-                      <span class="visually-hidden">Running analysis...</span>
-                    </div>
-                    <h6>Running Load Flow Analysis</h6>
-                    <p class="text-muted">Please wait while the analysis is being performed...</p>
+              <!-- Progress bar section, hidden by default, now outside step-run-analysis -->
+              <div class="card card-body mb-4" id="analysis-progress-section" style="display: none;">
+                <div class="mb-3">
+                  <h5 class="mb-2">Running Load Flow Analysis</h5>
+                  <p>Please wait while the analysis is being performed...</p>
+                </div>
+                <div class="progress" style="height: 30px;">
+                  <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                      role="progressbar"
+                      style="width: 0%; font-size: 1.1rem;"
+                      id="analysis-progress-bar">
+                    0%
                   </div>
                 </div>
               </div>
@@ -604,70 +645,68 @@
 
         function selectEngine(engine) {
             selectedEngine = engine;
-            
             // Update button states
             document.querySelectorAll('.engine-select-btn').forEach(btn => {
                 btn.classList.remove('btn-primary');
                 btn.classList.add('btn-outline-primary');
             });
-            
             // Highlight selected engine
             document.querySelector(`[data-engine="${engine}"]`).classList.remove('btn-outline-primary');
             document.querySelector(`[data-engine="${engine}"]`).classList.add('btn-primary');
-            
             // Show step 2
             document.getElementById('step-engine-init').classList.remove('d-none');
             document.getElementById('selected-engine-name').textContent = engine.toUpperCase();
-            
             // Reset subsequent steps
             resetSteps([3, 4]);
         }
 
         function initializeEngine() {
             if (!selectedEngine) return;
-            
-            // Show loading state
-            document.getElementById('engine-status-indicator').classList.remove('d-none');
-            document.getElementById('init-engine-btn').disabled = true;
-            document.getElementById('status-text').textContent = `Initializing ${selectedEngine.toUpperCase()}...`;
-            
-            // API call to initialize engine
-            fetch('/api/initialize-engine', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ engine: selectedEngine })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    engineInitialized = true;
-                    document.getElementById('init-spinner').classList.add('d-none');
-                    document.getElementById('status-text').innerHTML = '<i class="bi-check-circle text-success me-1"></i>' + data.message;
-                    document.getElementById('engine-status').textContent = 'Initialized';
-                    
-                    // Show step 3
-                    setTimeout(() => {
-                        document.getElementById('step-engine-config').classList.remove('d-none');
-                        if (selectedEngine === 'ipsa') {
-                            document.getElementById('ipsa-config').classList.remove('d-none');
-                        } else {
-                            document.getElementById('powerfactory-config').classList.remove('d-none');
-                        }
-                    }, 1000);
-                } else {
-                    document.getElementById('init-spinner').classList.add('d-none');
-                    document.getElementById('status-text').innerHTML = '<i class="bi-x-circle text-danger me-1"></i>' + data.message;
-                    document.getElementById('init-engine-btn').disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('init-spinner').classList.add('d-none');
-                document.getElementById('status-text').innerHTML = '<i class="bi-x-circle text-danger me-1"></i>Connection error';
-                document.getElementById('init-engine-btn').disabled = false;
-            });
+      // Show loading state
+      document.getElementById('engine-status-indicator').classList.remove('d-none');
+      document.getElementById('init-engine-btn').disabled = true;
+      document.getElementById('status-text').textContent = `Initializing ${selectedEngine.toUpperCase()}...`;
+      // API call to initialize engine
+      fetch('/api/initialize-engine', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ engine: selectedEngine })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          engineInitialized = true;
+          document.getElementById('init-spinner').classList.add('d-none');
+          document.getElementById('status-text').innerHTML = '<i class="bi-check-circle text-success me-1"></i>' + data.message;
+          // Only show 'Initialized' for the selected engine
+          if (selectedEngine === 'ipsa') {
+            document.getElementById('engine-status').textContent = '';
+          } else {
+            document.getElementById('engine-status').textContent = 'Initialized';
+          }
+          // Show step 3
+          setTimeout(() => {
+            document.getElementById('step-engine-config').classList.remove('d-none');
+            if (selectedEngine === 'ipsa') {
+              document.getElementById('ipsa-config').classList.remove('d-none');
+            } else {
+              document.getElementById('powerfactory-config').classList.remove('d-none');
+            }
+          }, 1000);
+        } else {
+          document.getElementById('init-spinner').classList.add('d-none');
+          document.getElementById('status-text').innerHTML = '<i class="bi-x-circle text-danger me-1"></i>' + data.message;
+          document.getElementById('init-engine-btn').disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('init-spinner').classList.add('d-none');
+        document.getElementById('status-text').innerHTML = '<i class="bi-x-circle text-danger me-1"></i>Connection error';
+        document.getElementById('init-engine-btn').disabled = false;
+      });
         }
 
         function loadIPSAFile() {
@@ -676,10 +715,8 @@
                 alert('Please enter a file path');
                 return;
             }
-            
             document.getElementById('load-ipsa-btn').disabled = true;
             document.getElementById('load-ipsa-btn').innerHTML = '<i class="bi-hourglass-split me-2"></i>Loading...';
-            
             // API call to load IPSA file
             fetch('/api/load-ipsa-file', {
                 method: 'POST',
@@ -695,7 +732,6 @@
                     document.getElementById('load-ipsa-btn').innerHTML = '<i class="bi-check-circle me-2"></i>File Loaded';
                     document.getElementById('load-ipsa-btn').classList.remove('btn-success');
                     document.getElementById('load-ipsa-btn').classList.add('btn-outline-success');
-                    
                     // Show step 4
                     document.getElementById('step-run-analysis').classList.remove('d-none');
                 } else {
@@ -703,7 +739,6 @@
                     document.getElementById('load-ipsa-btn').classList.remove('btn-success');
                     document.getElementById('load-ipsa-btn').classList.add('btn-danger');
                     document.getElementById('load-ipsa-btn').disabled = false;
-                    
                     setTimeout(() => {
                         document.getElementById('load-ipsa-btn').innerHTML = '<i class="bi-file-earmark-check me-2"></i>Load IPSA File';
                         document.getElementById('load-ipsa-btn').classList.remove('btn-danger');
@@ -717,7 +752,6 @@
                 document.getElementById('load-ipsa-btn').classList.remove('btn-success');
                 document.getElementById('load-ipsa-btn').classList.add('btn-danger');
                 document.getElementById('load-ipsa-btn').disabled = false;
-                
                 setTimeout(() => {
                     document.getElementById('load-ipsa-btn').innerHTML = '<i class="bi-file-earmark-check me-2"></i>Load IPSA File';
                     document.getElementById('load-ipsa-btn').classList.remove('btn-danger');
@@ -727,18 +761,136 @@
         }
 
         function configurePowerFactory() {
-            document.getElementById('config-pf-btn').disabled = true;
-            document.getElementById('config-pf-btn').innerHTML = '<i class="bi-hourglass-split me-2"></i>Configuring...';
-            
-            setTimeout(() => {
-                engineConfigured = true;
-                document.getElementById('config-pf-btn').innerHTML = '<i class="bi-check-circle me-2"></i>Configured';
-                document.getElementById('config-pf-btn').classList.remove('btn-success');
-                document.getElementById('config-pf-btn').classList.add('btn-outline-success');
-                
-                // Show step 4
-                document.getElementById('step-run-analysis').classList.remove('d-none');
-            }, 1000);
+      document.getElementById('config-pf-btn').disabled = true;
+      document.getElementById('config-pf-btn').innerHTML = '<i class="bi-hourglass-split me-2"></i>Configuring...';
+      setTimeout(() => {
+        engineConfigured = true;
+        document.getElementById('config-pf-btn').innerHTML = '<i class="bi-check-circle me-2"></i>Configured';
+        document.getElementById('config-pf-btn').classList.remove('btn-success');
+        document.getElementById('config-pf-btn').classList.add('btn-outline-success');
+        // Hide PowerFactory config card
+        const pfConfigCard = document.getElementById('powerfactory-config');
+        if (pfConfigCard) pfConfigCard.classList.add('d-none');
+        // Prompt for project name
+        showPowerFactoryProjectPrompt();
+      }, 1000);
+    // PowerFactory Project Name and Study Case Prompt
+    function showPowerFactoryProjectPrompt() {
+            alert('DEBUG: showPowerFactoryProjectPrompt called');
+      const pfStep = document.createElement('div');
+      pfStep.id = 'pf-project-step';
+      pfStep.className = 'card card-body mb-4';
+      pfStep.innerHTML = `
+        <h5 class="mb-3"><span class="badge bg-secondary rounded-pill me-2">Project</span>Enter Project Name</h5>
+        <input type="text" class="form-control mb-3" id="pf-project-name" placeholder="e.g. 0.  PM_Anderson_9_Bus_System">
+        <button class="btn btn-primary" id="pf-project-next">Next</button>
+      `;
+      document.querySelector('.workflow-container').appendChild(pfStep);
+      document.getElementById('pf-project-next').onclick = function() {
+        alert('DEBUG: pf-project-next button clicked');
+        try {
+          var projectName = document.getElementById('pf-project-name').value;
+          pfStep.remove();
+          showPowerFactoryStudyCasePrompt(projectName);
+        } catch (err) {
+          alert('ERROR: ' + err);
+          console.error('ERROR in pf-project-next handler:', err);
+        }
+      };
+    }
+
+    function showPowerFactoryStudyCasePrompt(projectName) {
+            alert('DEBUG: Entered showPowerFactoryStudyCasePrompt');
+            alert('DEBUG: showPowerFactoryStudyCasePrompt called');
+            const pfStep = document.createElement('div');
+            pfStep.id = 'pf-study-step';
+            pfStep.className = 'card card-body mb-4';
+            pfStep.innerHTML = `
+                <h5 class="mb-3"><span class="badge bg-secondary rounded-pill me-2">Study Case</span>Enter Study Case Name/Number</h5>
+                <input type="text" class="form-control mb-3" id="pf-study-name" placeholder="e.g. 01- Load Flow">
+                <button class="btn btn-primary" id="pf-study-next">Next</button>
+            `;
+            document.querySelector('.workflow-container').appendChild(pfStep);
+            document.getElementById('pf-study-next').onclick = function() {
+                alert('DEBUG: pf-study-next button clicked');
+                const studyCaseName = document.getElementById('pf-study-name').value;
+                pfStep.remove();
+                // Show spinner while opening network
+                const spinnerCard = document.createElement('div');
+                spinnerCard.id = 'pf-network-spinner';
+                spinnerCard.className = 'card card-body mb-4 text-center';
+                spinnerCard.innerHTML = `
+                  <div class="d-flex flex-column align-items-center justify-content-center">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width:2.5rem;height:2.5rem;">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div class="fw-bold">Opening PowerFactory network...</div>
+                  </div>
+                `;
+                document.querySelector('.workflow-container').appendChild(spinnerCard);
+                // Simulate async backend call (replace with real API call)
+                fetch('/api/open-powerfactory-network', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ projectname: projectName, studycasename: studyCaseName })
+                })
+                .then(response => response.json())
+                .then(data => {
+                  spinnerCard.remove();
+                  if (data.success) {
+                    showPowerFactoryLoadFlowOptions(projectName, studyCaseName);
+                  } else {
+                    alert('Failed to open network: ' + (data.message || 'Unknown error'));
+                  }
+                })
+                .catch(error => {
+                  spinnerCard.remove();
+                  alert('Network error: ' + error);
+                });
+            };
+    }
+
+    function showPowerFactoryLoadFlowOptions(projectName, studyCaseName) {
+            alert('DEBUG: showPowerFactoryLoadFlowOptions called');
+      const pfStep = document.createElement('div');
+      pfStep.id = 'pf-loadflow-step';
+      pfStep.className = 'card card-body mb-4';
+      pfStep.innerHTML = `
+        <h5 class="mb-3"><span class="badge bg-success rounded-pill me-2">Load Flow</span>Choose Load Flow Type</h5>
+        <div class="d-flex gap-3 mb-3">
+          <button class="btn btn-success" id="pf-basic-loadflow">Basic Load Flow</button>
+          <button class="btn btn-outline-primary" id="pf-advanced-loadflow"><i class="bi-sliders me-2"></i>Advanced Settings</button>
+        </div>
+      `;
+      document.querySelector('.workflow-container').appendChild(pfStep);
+      document.getElementById('pf-basic-loadflow').onclick = function() {
+        pfStep.remove();
+        // Run basic load flow (call backend with projectName, studyCaseName, default settings)
+        runPowerFactoryLoadFlow(projectName, studyCaseName, {CalculationMethod:0, AutomaticPhaseShifterTapAdjustment:0, AutomaticTapAdjustmentTransformer:1});
+      };
+      document.getElementById('pf-advanced-loadflow').onclick = function() {
+        // Show advanced settings modal
+        const modal = new bootstrap.Modal(document.getElementById('pf-advanced-settings-modal'));
+        modal.show();
+        document.getElementById('pf-advanced-settings-save').onclick = function() {
+          modal.hide();
+          pfStep.remove();
+          // Collect settings from dropdowns
+          const settings = {
+            CalculationMethod: parseInt(document.getElementById('pf-calculation-method').value),
+            AutomaticPhaseShifterTapAdjustment: parseInt(document.getElementById('pf-phase-shifter').value),
+            AutomaticTapAdjustmentTransformer: parseInt(document.getElementById('pf-transformer-tap').value)
+          };
+          runPowerFactoryLoadFlow(projectName, studyCaseName, settings);
+        };
+      };
+    }
+
+    function runPowerFactoryLoadFlow(projectName, studyCaseName, settings) {
+      // TODO: Implement backend API call to run PowerFactory load flow with these settings
+      alert(`Running PowerFactory Load Flow for project: ${projectName}, study case: ${studyCaseName}\nSettings: ${JSON.stringify(settings)}`);
+      // After completion, show results or next step
+    }
         }
 
         function runLoadFlowAnalysis() {
@@ -746,41 +898,93 @@
                 alert('Please complete all configuration steps first');
                 return;
             }
-            
             // Hide step 4 and show progress
             document.getElementById('step-run-analysis').classList.add('d-none');
-            document.getElementById('step-analysis-progress').classList.remove('d-none');
-            
-            // API call to run load flow analysis
-            fetch('/api/run-loadflow', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ engine: selectedEngine })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('step-analysis-progress').classList.add('d-none');
-                
-                if (data.success) {
-                    alert('Load flow analysis completed successfully! Results will be shown in the Review Results tab.');
-                    
-                    // Switch to Review Results tab
-                    document.getElementById('featuresThree-tab').click();
-                } else {
-                    alert('Analysis failed: ' + data.message);
-                    // Show step 4 again
-                    document.getElementById('step-run-analysis').classList.remove('d-none');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('step-analysis-progress').classList.add('d-none');
-                alert('Connection error occurred during analysis');
-                // Show step 4 again
-                document.getElementById('step-run-analysis').classList.remove('d-none');
-            });
+            document.getElementById('analysis-progress-section').style.display = 'block';
+
+      // Show and animate the progress bar
+      const progressBar = document.getElementById('analysis-progress-bar');
+      let progress = 0;
+      progressBar.style.width = '0%';
+      progressBar.textContent = '0%';
+      progressBar.classList.add('progress-bar-animated');
+
+      let analysisResult = null;
+      let analysisError = null;
+      let animationDone = false;
+
+      // Animate progress bar to 100%
+      const interval = setInterval(function () {
+        if (progress < 100) {
+          progress += 5;
+          progressBar.style.width = progress + '%';
+          progressBar.textContent = progress + '%';
+        } else {
+          clearInterval(interval);
+          progressBar.textContent = 'Analysis Complete!';
+          progressBar.classList.remove('progress-bar-animated');
+          animationDone = true;
+          // Only show popup after both animation and backend are done
+          finishProgressBar();
+        }
+      }, 200);
+
+      // API call to run load flow analysis
+      fetch('/api/run-loadflow', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ engine: selectedEngine })
+      })
+      .then(response => response.json())
+      .then(data => {
+        analysisResult = data;
+        finishProgressBar();
+      })
+      .catch(error => {
+        analysisError = error;
+        finishProgressBar();
+      });
+
+      function finishProgressBar() {
+        // Only proceed if both animation and backend are done
+        if (!animationDone || (analysisResult === null && analysisError === null)) return;
+        setTimeout(() => {
+          // If error or failed, show alert and restore step
+          if (analysisError) {
+            document.getElementById('analysis-progress-section').style.display = 'none';
+            console.error('Error:', analysisError);
+            alert('Connection error occurred during analysis');
+            document.getElementById('step-run-analysis').classList.remove('d-none');
+          } else if (analysisResult && analysisResult.success) {
+            // Show message and button in progress section
+            const section = document.getElementById('analysis-progress-section');
+                        section.innerHTML = `
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                              <div>
+                                <h5 class="mb-2 text-success"><i class='bi-check-circle me-2'></i>Load Flow Complete</h5>
+                                <p>Click below to view results.</p>
+                              </div>
+                              <div>
+                                <button id="view-results-btn" class="btn btn-primary" style="font-size:1.1rem; padding:0.5rem 1.5rem;">
+                                  <i class="bi-bar-chart me-2"></i>View Results
+                                </button>
+                              </div>
+                            </div>
+                        `;
+            section.style.display = 'block';
+            document.getElementById('view-results-btn').onclick = function() {
+              section.style.display = 'none';
+              document.getElementById('featuresThree-tab').click();
+            };
+          } else {
+            document.getElementById('analysis-progress-section').style.display = 'none';
+            alert('Analysis failed: ' + (analysisResult ? analysisResult.message : 'Unknown error'));
+            document.getElementById('step-run-analysis').classList.remove('d-none');
+          }
+        }, 500); // Show complete for 0.5s
+      }
         }
 
         function browseFile() {
@@ -800,7 +1004,7 @@
                 }
                 if (stepNum === 4) {
                     document.getElementById('step-run-analysis').classList.add('d-none');
-                    document.getElementById('step-analysis-progress').classList.add('d-none');
+                    document.getElementById('analysis-progress-section').style.display = 'none';
                 }
             });
         }
