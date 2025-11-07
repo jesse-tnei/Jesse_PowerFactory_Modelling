@@ -128,7 +128,25 @@ class EnginePowerFactory(EngineContainer):
         if bOK:
             bOK = self.activatepowerfactorystudycase(strStudyCaseName)
         return bOK
-
+    def createnetwork(self, **kwargs):
+        """Create a new PowerFactory network"""
+        strNetworkName = kwargs.get("projectname", None)
+        if not strNetworkName:
+            self.m_oMsg.AddError("Project name is required for network creation")
+            return False
+        if not self.m_pFApp:
+            self.m_oMsg.AddError("PowerFactory application is not initialized")
+            return False
+        try:
+            self.m_pFApp.ClearOutputWindow()
+            proj = self.m_pFApp.CreateProject(strNetworkName, 'Grid')
+            if not proj:
+                self.m_oMsg.AddError(f"Failed to create PowerFactory project: {strNetworkName}")
+                return False
+            return self.activatepowerfactorynetwork(strNetworkName)
+        except Exception as e:
+            self.m_oMsg.AddError(f"Exception while creating project '{strNetworkName}': {e}")
+            return False
     def activatepowerfactorynetwork(self, network_name: str):
         """Activate a PowerFactory network by name"""
         if not self.m_pFApp:
