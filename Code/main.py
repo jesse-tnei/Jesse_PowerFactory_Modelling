@@ -39,27 +39,28 @@ if __name__ == "__main__":
                                         studycasename="01- Load Flow")
         gbl.DataModelInterfaceContainer.passelementsfromnetworktodatamodelmanager()
         if gbl.StudySettingsContainer.DoLoadFlow:
-            for branch in gbl.DataModelManager.Branch_TAB:
-                if branch.IsTransformer:
-                    gbl.DataModelInterfaceContainer.switchtransformertapstatus(branch, 0, 0)
-                    tapchangerattributes = {
-                        'type': 0,  #0 ratio/asym
-                        'controlside': 0,  #0HV
-                        'additionvoltpertap': 1,  #percentage
-                        'tapphase': 0,  #phase angle
-                        'neutralposition': 0,
-                        'mintapposition': -10,
-                        'maxtapposition': 10
-                    }
-                    gbl.DataModelInterfaceContainer.settransformervaluestonetwork(
-                        branch, **tapchangerattributes)
-            loadflowsettings = {
-                'CalculationMethod': 0,
-                'AutomaticPhaseShifterTapAdjustment': 0,
-                'AutomaticTapAdjustmentTransformer': 1,
-            }
-            gbl.EngineLoadFlowContainer.runloadflow(**loadflowsettings)
-            #gbl.EngineLoadFlowContainer.runloadflow()
+            if dobasicloadflow:
+                gbl.EngineLoadFlowContainer.runloadflow()
+            else:
+                for branch in gbl.DataModelManager.Branch_TAB:
+                    if branch.IsTransformer:
+                        gbl.DataModelInterfaceContainer.switchtransformertapstatus(branch, 0, 0)
+                        tapchangerattributes = {
+                            'type': 0,  #0 ratio/asym
+                            'controlside': 0,  #0HV
+                            'additionvoltpertap': 1,  #percentage
+                            'tapphase': 0,  #phase angle
+                            'neutralposition': 0,
+                            'mintapposition': -10,
+                            'maxtapposition': 10
+                        }
+                        gbl.DataModelInterfaceContainer.settransformervaluestonetwork(
+                            branch, **tapchangerattributes)
+                loadflowsettings = {
+                    'CalculationMethod': 0,
+                    'AutomaticPhaseShifterTapAdjustment': 0,
+                    'AutomaticTapAdjustmentTransformer': 1,
+                }
             gbl.EngineLoadFlowContainer.getandupdatebusbarloadflowresults()
             gbl.EngineLoadFlowContainer.getandupdatelineloadflowresults()
             gbl.EngineLoadFlowContainer.getandupdatetransformerflowresults()

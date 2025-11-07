@@ -45,7 +45,7 @@ class EnginePowerFactory(EngineContainer):
         self.m_PowerFactoryInstallPath2025 = "C:\\Program Files\\DIgSILENT\\PowerFactory 2025"
         # check to destroy any running PowerFactory processes
         self._killrunningpowerfactoryprocesses("PowerFactory.exe")
-        self.ShowLoadedApplication = False  # Show the loaded application
+        self.ShowLoadedApplication = True  # Show the loaded application
         self.loadpowerfactoryversion(self.m_ChosenVersion)
 
     def ispowerfactory(self):
