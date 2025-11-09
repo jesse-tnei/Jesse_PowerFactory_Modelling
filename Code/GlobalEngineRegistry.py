@@ -15,6 +15,7 @@ gbl_sAuthor = "Jesse Solomon"
 VERSION_TESTING = True
 
 WebContainer = None  # Web server container (Flask or other)
+DataSourceInterfaceContainer = None  # New container for data sources
 EngineContainer       = None   # Generic analysis engine interface
 EngineLoadFlowContainer = None   # Load flow analysis engine interface
 EngineShortCircuitContainer = None   # Short circuit analysis engine interface

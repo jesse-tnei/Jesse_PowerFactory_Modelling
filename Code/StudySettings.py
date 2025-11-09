@@ -3,7 +3,8 @@ class StudySettings:
     def __init__(self):
         self.powerfactory = False
         self.ipsa = True
-        self.ipsafilename = r"C:\Users\solomonj\Documents\Personal\PDev\ProgrammingProjects\Jesse_PowerFactory_Modelling\Refinery.i2f"
+        self.ipsafilepath = r"C:\Users\solomonj\Documents\Personal\PDev\ProgrammingProjects\Jesse_PowerFactory_Modelling\Refinery.i2f"
+        self.etysfilepath = r"C:\Users\solomonj\Documents\Personal\PDev\ProgrammingProjects\Jesse_PowerFactory_Modelling\Code\DataSources\Full_Grid.xlsx"
         self.DoLoadFlow = True
         self.DoShortCircuit = False
         self.DoHarmonics = False

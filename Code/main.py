@@ -20,8 +20,13 @@ if __name__ == "__main__":
     gbl.Msg.DisplayWelcomeMessage()
     if gbl.StudySettingsContainer.ipsa:
         fw.initialize_backend("ipsa")
+        #clean data, log errors and continue
+        #standardized_etys_data = gbl.NetworkDataManager.get_standardized_data('etys', file_path=gbl.AppSettingsContainer.etysfilepath, export_to_excel = True)
+        gbl.NetworkDataManager.load_etys_data_to_framework(file_path = gbl.StudySettingsContainer.etysfilepath, load_strategy = 'datamodel')
+        # #clean data but fail to continue if there are errors
+        # standardized_data = gbl.NetworkDataManager.get_standardized_data('etys', file_path=r"C:\Users\solomonj\Documents\Personal\PDev\ProgrammingProjects\Jesse_PowerFactory_Modelling\Code\DataSources\Full_Grid.xlsx", strict_validation = True)
         gbl.EngineContainer.opennetwork(
-            filepath= gbl.StudySettingsContainer.ipsafilename)
+            filepath= gbl.StudySettingsContainer.ipsafilepath)
         gbl.DataModelInterfaceContainer.passelementsfromnetworktodatamodelmanager()
         print("Completed opening network.")
         if gbl.StudySettingsContainer.DoLoadFlow:
@@ -35,6 +40,10 @@ if __name__ == "__main__":
 
     if gbl.StudySettingsContainer.powerfactory:
         fw.initialize_backend("powerfactory")
+        #clean data, log errors and continue
+        standardized_data = gbl.NetworkDataManager.get_standardized_data('etys', file_path="C:/Users/solomonj/Documents/Personal/PDev/ProgrammingProjects/Jesse_PowerFactory_Modelling/Code/DataSources/Full_Grid.xlsx")
+        # #clean data but fail to continue if there are errors
+        # standardized_data = gbl.NetworkDataManager.get_standardized_data('etys', file_path=r"C:\Users\solomonj\Documents\Personal\PDev\ProgrammingProjects\Jesse_PowerFactory_Modelling\Code\DataSources\Full_Grid.xlsx", strict_validation = True)
         gbl.EngineContainer.opennetwork(projectname="0.  PM_Anderson_9_Bus_System",
                                         studycasename="01- Load Flow")
         gbl.DataModelInterfaceContainer.passelementsfromnetworktodatamodelmanager()
@@ -80,7 +89,7 @@ if __name__ == "__main__":
     # gbl.Msg.DisplayWelcomeMessage()
     # if gbl.StudySettingsContainer.ipsa:
     #     gbl.EngineContainer.opennetwork(
-    #         filepath= gbl.StudySettingsContainer.ipsafilename)
+    #         filepath= gbl.StudySettingsContainer.ipsafilepath)
     #     gbl.DataModelInterfaceContainer.passelementsfromnetworktodatamodelmanager()
     #     print("Completed opening network.")
     #     if gbl.StudySettingsContainer.DoLoadFlow:

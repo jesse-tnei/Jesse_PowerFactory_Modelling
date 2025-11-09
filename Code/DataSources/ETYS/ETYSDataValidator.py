@@ -20,7 +20,7 @@ class ETYSDataValidator(BaseDataValidator):
 
     def __init__(self):
         self.required_node_columns = [
-            'Node', 'Voltage (Derived)', 'latitude', 'longitude', 
+            'Node', 'Voltage (Derived)', 'latitude', 'longitude',
             'Site Name', 'Relevant TO', 'Type', 'Indoor/Outdoor'
         ]
         self.required_line_columns = [
@@ -64,7 +64,7 @@ class ETYSDataValidator(BaseDataValidator):
         messages.extend(self._validate_cross_sheet_references(data_dict))
         # Determine overall validity
         has_critical_errors = any(
-            msg.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL] 
+            msg.severity in [ValidationSeverity.ERROR, ValidationSeverity.CRITICAL]
             for msg in messages
         )
         return ValidationResult(
@@ -205,7 +205,7 @@ class ETYSDataValidator(BaseDataValidator):
         if 'Nodes' in data_dict:
             df_nodes = data_dict['Nodes']
             invalid_voltages = df_nodes[
-                (df_nodes['Voltage (Derived)'].notna()) & 
+                (df_nodes['Voltage (Derived)'].notna()) &
                 (~df_nodes['Voltage (Derived)'].isin(self.valid_voltage_levels))
             ]
             if not invalid_voltages.empty:
@@ -398,7 +398,7 @@ class ETYSDataValidator(BaseDataValidator):
                 if not invalid_refs.empty:
                     invalid_nodes = invalid_refs[col].unique()
                     messages.append(ValidationMessage(
-                        severity=ValidationSeverity.ERROR,
+                        severity=ValidationSeverity.WARNING,
                         category="Cross-Sheet References",
                         message=f"{sheet_name}: Invalid {col} references: {list(invalid_nodes)}",
                         location=sheet_name,
@@ -406,7 +406,7 @@ class ETYSDataValidator(BaseDataValidator):
                     ))
         return messages
 
-    def _validate_equipment_node_references(self, df: pd.DataFrame, valid_nodes: Set[str], 
+    def _validate_equipment_node_references(self, df: pd.DataFrame, valid_nodes: Set[str],
                                           sheet_name: str, node_col: str) -> List[ValidationMessage]:
         """Validate node references in equipment sheets."""
         messages = []
@@ -415,7 +415,7 @@ class ETYSDataValidator(BaseDataValidator):
             if not invalid_refs.empty:
                 invalid_nodes = invalid_refs[node_col].unique()
                 messages.append(ValidationMessage(
-                    severity=ValidationSeverity.ERROR,
+                    severity=ValidationSeverity.WARNING,
                     category="Cross-Sheet References",
                     message=f"{sheet_name}: Invalid {node_col} references: {list(invalid_nodes)}",
                     location=sheet_name,
