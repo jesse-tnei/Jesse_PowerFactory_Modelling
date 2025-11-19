@@ -61,7 +61,8 @@ class FrameworkInitialiser:
         if self.bOK:
             self.bOK = self.startwebinterface()
         return self.bOK
-    def initialize_backend(self, engine_type = None):
+
+    def initialize_backend(self, engine_type=None):
         """Initialize only components needed for backend"""
         try:
             if self.backendinitialized:
@@ -78,6 +79,10 @@ class FrameworkInitialiser:
                 self.bOK = self.initialisedatafactory()
             if self.bOK:
                 self.bOK = self.initialisedatamodelmanager()
+            if self.bOK:
+                self.bOK = self.initialise_network_data_manager()
+            if self.bOK:
+                self.bOK = self.initialise_data_source_interface()
             if self.bOK:
                 self.backendinitialized = True
                 self.selected_engine = engine_type
@@ -222,6 +227,25 @@ class FrameworkInitialiser:
         except Exception as e:
             gbl.Msg.AddError(f"Failed to initialize data factory: {e}")
             return False
+    def initialise_data_source_interface(self):
+        """Initialize data source interface"""
+        try:
+            from Code.DataSources.ETYS.ETYSDataModelInterface import ETYSDataModelInterface
+            gbl.DataSourceInterfaceContainer = ETYSDataModelInterface()
+            return True
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to initialize data source interface: {e}")
+            return False
+    def initialise_network_data_manager(self):
+        """Initialize network data management"""
+        try:
+            from Code.NetworkDataManager import NetworkDataManager
+            gbl.NetworkDataManager = NetworkDataManager()
+            gbl.Msg.AddInfo("Network data manager initialized successfully")
+            return True
+        except Exception as e:
+            gbl.Msg.AddError(f"Failed to initialize network data manager: {e}")
+            return False
 
     def _initialise_engine_modules(self, engine_type):
         if engine_type == "powerfactory":
@@ -266,6 +290,7 @@ class FrameworkInitialiser:
         except Exception as e:
             gbl.Msg.AddError(f"Failed to initialize data model manager: {e}")
             return False
+
     def can_initialize_backend(self):
         """Check if backend can be initialized"""
         return self.webinitialized and not self.backendinitialized
@@ -283,7 +308,7 @@ class FrameworkInitialiser:
                 engines.append({"name": "PowerFactory", "type": "powerfactory", "available": True})
             else:
                 engines.append({"name": "PowerFactory", "type": "powerfactory", "available": False})
-            # Check IPSA availability  
+            # Check IPSA availability
             if gbl.StudySettingsContainer.ipsa:
                 engines.append({"name": "IPSA", "type": "ipsa", "available": True})
             else:
