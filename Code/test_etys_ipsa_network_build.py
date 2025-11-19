@@ -68,7 +68,7 @@ def test_complete_etys_pipeline():
         else:
             print("WARNING: IPSA file created but cannot be reopened")
         print("\nPIPELINE TEST COMPLETED SUCCESSFULLY!")
-`       `````   ``        return True
+        return True
     except Exception as e:
         print(f"PIPELINE TEST FAILED: {str(e)}")
         import traceback
