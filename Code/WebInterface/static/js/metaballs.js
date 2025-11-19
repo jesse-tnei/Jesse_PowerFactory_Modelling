@@ -246,7 +246,8 @@ function getStoryText(x, y, radius, merges, fps) {
   if (isMobile) {
     return `vessel: (${x}, ${y})<br>field: ${radius}u<br>merges: ${merges}<br>flux: ${fps}hz`;
   }
-  return `our vessel drifts at coordinates (${x}, ${y})<br>gravitational field extends ${radius} units into quantum foam<br>currently merging with ${merges} other entities<br>temporal flux: ${fps} cycles per second`;
+  // return `our vessel drifts at coordinates (${x}, ${y})<br>gravitational field extends ${radius} units into quantum foam<br>currently merging with ${merges} other entities<br>temporal flux: ${fps} cycles per second`;
+  return `Rapidly build and analysis network models to solve power system problems with minimal technical expertise.`;
 }
 
 init();
